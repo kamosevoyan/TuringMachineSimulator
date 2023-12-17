@@ -22,6 +22,8 @@ namespace TuringMachineSimulator
 
         public void set(string input, char emptySymbol)
         {
+            this.emptySymbol = emptySymbol;
+            this.position = 0;
             string tempRightSide = input;
             string tempLeftSide = "";
 
@@ -30,9 +32,6 @@ namespace TuringMachineSimulator
 
             this.leftSide = new StringBuilder(tempLeftSide);
             this.rightSide = new StringBuilder(tempRightSide);
-
-            this.emptySymbol = emptySymbol;
-            this.position = 0;
         }
 
         public string getTapeVisiblePart()
@@ -41,7 +40,7 @@ namespace TuringMachineSimulator
 
             if (this.position > Tape.tapeCount / 2)
             {
-                int begin = this.position - Tape.tapeCount / 2;                
+                int begin = this.position - Tape.tapeCount / 2;
                 int count = Tape.tapeCount;
                 result += this.rightSide.ToString().Substring(begin, count);
             }
@@ -56,17 +55,17 @@ namespace TuringMachineSimulator
                 result = new string(charArray);
             }
             else
-            {                
+            {
                 string leftSidePart = "";
                 string rightSidePart = "";
 
-                leftSidePart = this.leftSide.ToString().Substring(0, Tape.tapeCount/2 - this.position);
+                leftSidePart = this.leftSide.ToString().Substring(0, Tape.tapeCount / 2 - this.position);
                 rightSidePart = this.rightSide.ToString().Substring(0, Tape.tapeCount / 2 + this.position);
 
                 var charArray = leftSidePart.ToCharArray();
                 Array.Reverse(charArray);
                 leftSidePart = new string(charArray);
-                
+
                 result = leftSidePart + rightSidePart;
             }
 
@@ -99,7 +98,7 @@ namespace TuringMachineSimulator
         {
             int where;
 
-            switch (direction) 
+            switch (direction)
             {
                 case "<":
                     {
@@ -172,9 +171,9 @@ namespace TuringMachineSimulator
             this.isFinished = false;
 
         }
-        public void setInput(string input) 
+        public void setInput(string input)
         {
-            if (input.Length == 0) 
+            if (input.Length == 0)
             {
                 throw new Exception("Expected non empty string.");
             }
@@ -188,7 +187,7 @@ namespace TuringMachineSimulator
             this.currentState = this.initialState;
         }
 
-        public void setConfiguration(string input) 
+        public void setConfiguration(string input)
         {
             string alphabetSymbols = "";
             List<string> stateSymbols = new List<string>();
@@ -314,73 +313,73 @@ namespace TuringMachineSimulator
                 }
 
             }
-                while (true)
+            while (true)
+            {
+                this.initialState = lines[lineNumber].Trim();
+                ++lineNumber;
+                if (initialState.Length > 0)
                 {
-                    this.initialState = lines[lineNumber].Trim();
-                    ++lineNumber;
-                    if (initialState.Length > 0)
-                    {
-                        break;
-                    }
-
-                    if (lineNumber == lines.Count() - 1)
-                    {
-                        throw new Exception($"Intial state symbol is not given.");
-                    }
+                    break;
                 }
 
-                if (!this.stateSymbols.Contains(this.initialState)) 
+                if (lineNumber == lines.Count() - 1)
                 {
-                    throw new Exception($"Unknown initial state {this.initialState}");
+                    throw new Exception($"Intial state symbol is not given.");
+                }
+            }
+
+            if (!this.stateSymbols.Contains(this.initialState))
+            {
+                throw new Exception($"Unknown initial state {this.initialState}");
+            }
+
+            while (true)
+            {
+                this.haltState = lines[lineNumber].Trim();
+                ++lineNumber;
+                if (haltState.Length > 0)
+                {
+                    break;
                 }
 
-                while (true)
+                if (lineNumber == lines.Count() - 1)
                 {
-                    this.haltState = lines[lineNumber].Trim();
-                    ++lineNumber;
-                    if (haltState.Length > 0)
-                    {
-                        break;
-                    }
+                    throw new Exception($"Halt state symbol is not given");
+                }
+            }
 
-                    if (lineNumber == lines.Count() - 1)
-                    {
-                        throw new Exception($"Halt state symbol is not given");
-                    }
+            if (!this.stateSymbols.Contains(this.haltState))
+            {
+                throw new Exception($"Unknown halt state {this.haltState}");
+            }
+
+            while (true)
+            {
+                this.emptySymbol = char.Parse(lines[lineNumber].Trim());
+                ++lineNumber;
+
+                if (emptySymbol.ToString().Length > 0)
+                {
+                    break;
                 }
 
-                if (!this.stateSymbols.Contains(this.haltState))
+                if (lineNumber == lines.Count() - 1)
                 {
-                    throw new Exception($"Unknown halt state {this.haltState}");
+                    throw new Exception($"Halt state symbol is not given");
                 }
+            }
 
-                while (true)
-                {
-                    this.emptySymbol = char.Parse(lines[lineNumber].Trim());
-                    ++lineNumber;
-
-                    if (emptySymbol.ToString().Length > 0)
-                    {
-                        break;
-                    }
-
-                    if (lineNumber == lines.Count() - 1)
-                    {
-                        throw new Exception($"Halt state symbol is not given");
-                    }
-                }
-
-                if (!this.alphabetSymbols.Contains(this.emptySymbol.ToString()))
-                {
-                    throw new Exception($"Unknown empty symbol {this.emptySymbol}");
-                }
+            if (!this.alphabetSymbols.Contains(this.emptySymbol.ToString()))
+            {
+                throw new Exception($"Unknown empty symbol {this.emptySymbol}");
+            }
         }
 
         public bool step()
         {
             this.currentSymbol = this.tape.get(this.tape.position);
 
-            Tuple<string, char> key = new Tuple<string, char> (currentState, currentSymbol);
+            Tuple<string, char> key = new Tuple<string, char>(currentState, currentSymbol);
 
             string newState = this.lambda[key];
             string newSymbol = this.delta[key];
