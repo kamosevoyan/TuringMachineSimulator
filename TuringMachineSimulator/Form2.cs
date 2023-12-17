@@ -33,7 +33,6 @@ namespace TuringMachineSimulator
                 this.button18,
                 this.button19
         };
-            this.disableStepButtons();
         }
 
         private void listView1_SelectedIndexChanged(object sender, EventArgs e)
@@ -55,7 +54,7 @@ namespace TuringMachineSimulator
             }
 
             this.parent.setSimulatorInput(this.textBox1.Text);
-            this.button20.Enabled = false;
+            this.inputSetButton.Enabled = false;
             this.enableStepButtons();
             string layout = this.parent.simulator.getLayout();
             this.parent.setTape(layout);
@@ -64,7 +63,7 @@ namespace TuringMachineSimulator
         private void button21_Click(object sender, EventArgs e)
         {
             this.parent.simulator.reset();
-            this.button20.Enabled = true;
+            this.inputSetButton.Enabled = true;
             this.enableStepButtons();
             this.textBox1.Text = "";
         }
@@ -79,6 +78,12 @@ namespace TuringMachineSimulator
                 MessageBox.Show("Finish");
                 this.disableStepButtons();
             }
+        }
+
+        public void initialize()
+        {
+            this.disableStepButtons();
+            this.inputSetButton.Enabled = true;
         }
 
         private void pictureBox1_Click(object sender, EventArgs e)
@@ -99,6 +104,7 @@ namespace TuringMachineSimulator
         }
         async private void button3_Click(object sender, EventArgs e)
         {
+
             this.disableStepButtons();
             this.isPaused = false;
             bool isContinuing;
@@ -114,13 +120,18 @@ namespace TuringMachineSimulator
         private void Form2_FormClosing(object sender, FormClosingEventArgs e)
         {
             this.Hide();
-            e.Cancel = true; // this cancels the close event.
+            e.Cancel = true;
         }
 
         private void button1_Click(object sender, EventArgs e)
         {
             this.isPaused = true;
             this.enableStepButtons();
+        }
+
+        private void positionText_TextChanged(object sender, EventArgs e)
+        {
+
         }
     }
 }
