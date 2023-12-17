@@ -134,10 +134,14 @@ namespace TuringMachineSimulator
             {
                 return;
             }
+        
+            this.resetVisualisationTape();
+            this.simulator.reset();
 
-            this.resetTape();
-            this.simulatorForm.Show();
+
             this.simulator.setConfiguration(this.compiledSource);
+            this.simulatorForm.initialize();
+            this.simulatorForm.Show();
         }
 
         private void codeTextBox_TextChanged(object sender, EventArgs e)
