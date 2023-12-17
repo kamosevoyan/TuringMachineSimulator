@@ -49,7 +49,7 @@
             this.button17 = new System.Windows.Forms.Button();
             this.button18 = new System.Windows.Forms.Button();
             this.button19 = new System.Windows.Forms.Button();
-            this.button20 = new System.Windows.Forms.Button();
+            this.inputSetButton = new System.Windows.Forms.Button();
             this.textBox1 = new System.Windows.Forms.TextBox();
             this.button21 = new System.Windows.Forms.Button();
             this.positionText = new System.Windows.Forms.TextBox();
@@ -264,16 +264,16 @@
             this.button19.TabIndex = 12;
             this.button19.UseVisualStyleBackColor = true;
             // 
-            // button20
+            // inputSetButton
             // 
-            this.button20.Location = new System.Drawing.Point(339, 416);
-            this.button20.Margin = new System.Windows.Forms.Padding(0);
-            this.button20.Name = "button20";
-            this.button20.Size = new System.Drawing.Size(79, 36);
-            this.button20.TabIndex = 13;
-            this.button20.Text = "Set";
-            this.button20.UseVisualStyleBackColor = true;
-            this.button20.Click += new System.EventHandler(this.button20_Click);
+            this.inputSetButton.Location = new System.Drawing.Point(339, 416);
+            this.inputSetButton.Margin = new System.Windows.Forms.Padding(0);
+            this.inputSetButton.Name = "inputSetButton";
+            this.inputSetButton.Size = new System.Drawing.Size(79, 36);
+            this.inputSetButton.TabIndex = 13;
+            this.inputSetButton.Text = "Set";
+            this.inputSetButton.UseVisualStyleBackColor = true;
+            this.inputSetButton.Click += new System.EventHandler(this.button20_Click);
             // 
             // textBox1
             // 
@@ -302,6 +302,7 @@
             this.positionText.Name = "positionText";
             this.positionText.Size = new System.Drawing.Size(49, 26);
             this.positionText.TabIndex = 16;
+            this.positionText.TextChanged += new System.EventHandler(this.positionText_TextChanged);
             // 
             // Form2
             // 
@@ -312,7 +313,7 @@
             this.Controls.Add(this.positionText);
             this.Controls.Add(this.button21);
             this.Controls.Add(this.textBox1);
-            this.Controls.Add(this.button20);
+            this.Controls.Add(this.inputSetButton);
             this.Controls.Add(this.button19);
             this.Controls.Add(this.button18);
             this.Controls.Add(this.button17);
@@ -367,7 +368,7 @@
         private System.Windows.Forms.Button button17;
         private System.Windows.Forms.Button button18;
         private System.Windows.Forms.Button button19;
-        private System.Windows.Forms.Button button20;
+        private System.Windows.Forms.Button inputSetButton;
         private System.Windows.Forms.TextBox textBox1;
         private System.Windows.Forms.Button button21;
         private System.Windows.Forms.TextBox positionText;
