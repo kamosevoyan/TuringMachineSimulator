@@ -63,12 +63,12 @@ namespace TuringMachineSimulator
                 this.simulatorForm.buttons[i].Text = values[i].ToString();
             }
         }
-        public void resetTape()
+        public void resetVisualisationTape()
         {
             int n = this.simulatorForm.buttons.Length;
             for (int i = 0; i < n; i++)
             {
-                this.simulatorForm.buttons[i].Text = this.simulator.emptySymbol.ToString();
+                this.simulatorForm.buttons[i].Text = "";
             }
 
         }
