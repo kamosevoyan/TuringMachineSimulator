@@ -12,18 +12,18 @@ using System.Windows.Forms;
 
 namespace TuringMachineSimulator
 {
-    public partial class Form1 : Form
+    public partial class CompilerForm : Form
     {
         private int globalWidth;
         private int globalHeight;
-        private Form2 simulatorForm;
+        private SimulatorForm simulatorForm;
 
         public Simulator simulator;
         Compiler compiler;
 
         string compiledSource;
 
-        public Form1()
+        public CompilerForm()
         {
             InitializeComponent();
 
@@ -42,15 +42,17 @@ namespace TuringMachineSimulator
 
             this.compiler = new Compiler();
 
-            this.simulatorForm = new Form2(this);
+            this.simulatorForm = new SimulatorForm(this);
 
             this.simulator = new Simulator();
+
+            this.simulateToolStripMenuItem.Enabled = false;
         }
 
         public bool step()
         {
-            bool result = simulator.step();
-            string layout = simulator.getLayout();
+            bool result = simulator.Step();
+            string layout = simulator.GetLayout();
             this.setTape(layout);
 
             return result;
@@ -58,7 +60,7 @@ namespace TuringMachineSimulator
 
         public void setTape(string values)
         {
-            for (int i = 0; i < values.Length; i++) 
+            for (int i = 0; i < values.Length; i++)
             {
                 this.simulatorForm.buttons[i].Text = values[i].ToString();
             }
@@ -75,7 +77,7 @@ namespace TuringMachineSimulator
         public void setSimulatorInput(string input)
         {
             //TODO: add checking here
-            this.simulator.setInput(input);
+            this.simulator.SetInput(input);
         }
         private void fileToolStripMenuItem_Click(object sender, EventArgs e)
         {
@@ -96,26 +98,25 @@ namespace TuringMachineSimulator
             int currentWidth = this.Width;
 
             this.codeTextBox.Size = new System.Drawing.Size(Width * 9 / 10, Height * 8 / 10);
+            this.logTextBox.Size = new System.Drawing.Size(Width * 9 / 10, Height * 8 / 10);
+            this.logTextBox.Location = new System.Drawing.Point(8, currentHeight * 17 / 20);
+
         }
 
         private void newToolStripMenuItem_Click(object sender, EventArgs e)
         {
             DialogResult dialogResult = MessageBox.Show("Do you want to create a new file?", "", MessageBoxButtons.YesNo);
 
-            if (dialogResult == DialogResult.Yes) 
+            if (dialogResult == DialogResult.Yes)
             {
                 this.codeTextBox.Text = "";
             }
 
         }
 
-        private void openToolStripMenuItem_Click(object sender, EventArgs e)
-        {
-
-        }
-
         private void compileToolStripMenuItem_Click(object sender, EventArgs e)
         {
+            this.simulateToolStripMenuItem.Enabled = false;
             string source = this.codeTextBox.Text;
 
             if (source.Length == 0)
@@ -123,9 +124,20 @@ namespace TuringMachineSimulator
                 return;
             }
 
-            compiler.setStream(source);
-            this.compiledSource = compiler.compile();
-            //this.codeTextBox.Text = this.compiledSource;
+
+            try
+            {
+                compiler.SetStream(source);
+                this.compiledSource = compiler.Compile();
+            }
+            catch (SyntaxErrorException ex)
+            {
+                this.logTextBox.Text = ex.Message;
+                return;
+            }
+            this.logTextBox.Text = "Compiled successfully";
+
+            this.simulateToolStripMenuItem.Enabled = true;
         }
 
         private void simulateToolStripMenuItem_Click(object sender, EventArgs e)
@@ -134,13 +146,15 @@ namespace TuringMachineSimulator
             {
                 return;
             }
-        
+
+
             this.resetVisualisationTape();
             this.simulator.reset();
 
 
-            this.simulator.setConfiguration(this.compiledSource);
-            this.simulatorForm.initialize();
+            this.simulator.SetConfiguration(this.compiledSource);
+            this.simulatorForm.Initialize();
+            this.Hide();
             this.simulatorForm.Show();
         }
 
@@ -148,5 +162,41 @@ namespace TuringMachineSimulator
         {
 
         }
+
+        private void openToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            OpenFileDialog openFileDialog = new OpenFileDialog();
+
+            // Set the title and filters for the dialog
+            openFileDialog.Title = "Open File";
+            openFileDialog.Filter = "All files (*.*)|*.*";
+
+            if (openFileDialog.ShowDialog() == DialogResult.OK)
+            {
+                string selectedFilePath = openFileDialog.FileName;
+                StreamReader sr = new StreamReader(selectedFilePath);
+                this.codeTextBox.Text = sr.ReadToEnd();
+                sr.Close();
+            }
+        }
+
+        private void saveToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            SaveFileDialog saveFileDialog = new SaveFileDialog();
+
+            // Set the title and filters for the dialog
+            saveFileDialog.Title = "Save File";
+            saveFileDialog.Filter = "All files (*.*)|*.*";
+
+            if (saveFileDialog.ShowDialog() == DialogResult.OK)
+            {
+                // User selected a location to save the file
+                string selectedFilePath = saveFileDialog.FileName;
+                StreamWriter sw = new StreamWriter(selectedFilePath);
+                sw.Write(this.codeTextBox.Text);
+                sw.Close();
+            }
+        }
     }
 }
+

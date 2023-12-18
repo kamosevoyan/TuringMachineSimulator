@@ -22,7 +22,7 @@ namespace TuringMachineSimulator
         private string tokenPattern;
         private string reader;
         private List<string> tokens;
-        private List<(int, int)> tokenPositions;
+        public List<(int, int)> tokenPositions;
 
         public Lexer()
         {
@@ -60,28 +60,25 @@ namespace TuringMachineSimulator
 
             this.tokenPattern = @"\w(\w\d)+";
 
-            //this.tokenPositions = new List<(int, int)> { };
-            //this.tokens = new List<string> { };
-
             this.keyMap["function"] = KEYWORD.FUNCTION;
         }
-        public void setStream(string stream)
+        public void SetStream(string stream)
         {
             this.tokenPositions = new List<(int, int)> { };
             this.tokens = new List<string> { };
             this.position = 0;
 
             this.reader = stream;
-            this.correctStream();
+            this.CorrectStream();
         }
-        private bool isCorrectToken(string token)
+        private bool IsCorrectToken(string token)
         {
             System.Text.RegularExpressions.Regex regex = new System.Text.RegularExpressions.Regex(this.tokenPattern);
             System.Text.RegularExpressions.Match match = regex.Match(token);
 
             return match.Success;
         }
-        private void correctStream()
+        private void CorrectStream()
         {
             string temp;
             temp = reader;
@@ -104,7 +101,7 @@ namespace TuringMachineSimulator
 
             int lineNumber = 0;
 
-            foreach (string _line in  lines)
+            foreach (string _line in lines)
             {
                 string line = _line;
                 line = System.Text.RegularExpressions.Regex.Replace(line, @"\s+", " ");
@@ -121,16 +118,16 @@ namespace TuringMachineSimulator
                 string[] trimmedTokens = Array.ConvertAll(splittedLine, s => s.Trim());
                 this.tokens = this.tokens.Concat(trimmedTokens).ToList();
 
-                foreach(string token in splittedLine)
+                foreach (string token in splittedLine)
                 {
                     this.tokenPositions.Add((lineNumber, _line.IndexOf(token)));
                 }
                 ++lineNumber;
             }
         }
-        public bool nextToken()
+        public bool NextToken()
         {
-            if (this.position >= this.tokens.Count) 
+            if (this.position >= this.tokens.Count)
             {
                 return false;
             }
@@ -148,9 +145,9 @@ namespace TuringMachineSimulator
             }
             else
             {
-                if (!isCorrectToken(temp))
+                if (!IsCorrectToken(temp))
                 {
-                    throw new Exception($"Unacceptabe name {temp} in {this.tokenPositions[this.position-1]}");
+                    throw new SyntaxErrorException($"Unacceptable name {temp} in {this.tokenPositions[this.position - 1]}");
                 }
                 this._keyword = KEYWORD.NAME;
                 this._value = temp;
@@ -158,14 +155,14 @@ namespace TuringMachineSimulator
 
             return true;
         }
-        public string currentValue
+        public string CurrentValue
         {
             get
             {
                 return this._value;
             }
         }
-        public KEYWORD currentKeyword
+        public KEYWORD CurrentKeyword
         {
             get
             {

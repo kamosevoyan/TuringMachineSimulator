@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using System.Windows.Forms;
 
 namespace TuringMachineSimulator
 {
@@ -171,7 +170,7 @@ namespace TuringMachineSimulator
             this.isFinished = false;
 
         }
-        public void setInput(string input)
+        public void SetInput(string input)
         {
             if (input.Length == 0)
             {
@@ -187,7 +186,7 @@ namespace TuringMachineSimulator
             this.currentState = this.initialState;
         }
 
-        public void setConfiguration(string input)
+        public void SetConfiguration(string input)
         {
             string alphabetSymbols = "";
             List<string> stateSymbols = new List<string>();
@@ -375,7 +374,7 @@ namespace TuringMachineSimulator
             }
         }
 
-        public bool step()
+        public bool Step()
         {
             this.currentSymbol = this.tape.get(this.tape.position);
 
@@ -398,7 +397,7 @@ namespace TuringMachineSimulator
             return true;
         }
 
-        public string getLayout()
+        public string GetLayout()
         {
             return this.tape.getTapeVisiblePart();
         }
