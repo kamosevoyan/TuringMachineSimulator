@@ -154,6 +154,7 @@ namespace TuringMachineSimulator
 
             this.simulator.SetConfiguration(this.compiledSource);
             this.simulatorForm.Initialize();
+
             this.Hide();
             this.simulatorForm.Show();
         }

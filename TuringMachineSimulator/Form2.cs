@@ -10,6 +10,10 @@ namespace TuringMachineSimulator
         CompilerForm parent;
         public Button[] buttons;
         private bool isRunning = false;
+        private bool isStopped;
+
+        Thread simulationThread;
+        Task MyTask;
 
         public SimulatorForm(CompilerForm parent)
         {
@@ -35,6 +39,7 @@ namespace TuringMachineSimulator
                 this.button18,
                 this.button19
         };
+            MyTask = MyAsyncMethod();
         }
 
         private void listView1_SelectedIndexChanged(object sender, EventArgs e)
@@ -65,7 +70,7 @@ namespace TuringMachineSimulator
         private void button2_Click(object sender, EventArgs e)
         {
             bool isContinuing = this.parent.step();
-            this.positionText.Text = this.parent.simulator.tape.position.ToString();
+            this.positionText.Text = $"Head position: {this.parent.simulator.tape.position}";
 
             if (!isContinuing)
             {
@@ -75,11 +80,12 @@ namespace TuringMachineSimulator
 
         public void Initialize()
         {
+            //this.simulationThread = new Thread(SimulationLoop);
+            //this.simulationThread.Start();            
+            this.isStopped = false;
             this.DisableStepButtons();
             this.inputSetButton.Enabled = true;
-            this.positionText.Text = "0";
-            Thread simulationThread = new Thread(SimulationLoop);
-            simulationThread.Start();
+            this.positionText.Text = $"Head position: {0}";            
         }
 
         private void pictureBox1_Click(object sender, EventArgs e)
@@ -98,7 +104,7 @@ namespace TuringMachineSimulator
             this.singleStep.Enabled = true;
             this.continiousStep.Enabled = true;
         }
-        private void continiousStep_Click(object sender, EventArgs e)
+        private void continuousStep_Click(object sender, EventArgs e)
         {
             if (isRunning)
             {
@@ -114,6 +120,12 @@ namespace TuringMachineSimulator
             }
         }
 
+        async Task MyAsyncMethod()
+        {
+            await Task.Run(() => SimulationLoop());
+        }
+
+
         async private void SimulationLoop()
         {
             bool isContinuing;
@@ -124,9 +136,9 @@ namespace TuringMachineSimulator
                     continue;
                 }
                 isContinuing = this.parent.step();
-                this.positionText.Text = this.parent.simulator.tape.position.ToString();
+                this.positionText.Text = $"Head position: {this.parent.simulator.tape.position}";
                 await Task.Delay(200);
-                if (!isContinuing)
+                if (!isContinuing || isStopped)
                 {
                     this.FinishSimulation();
                     break;
@@ -142,11 +154,14 @@ namespace TuringMachineSimulator
             this.inputSetButton.Enabled = true;
         }
 
-        private void Form2_FormClosing(object sender, FormClosingEventArgs e)
+        private async void Form2_FormClosing(object sender, FormClosingEventArgs e)
         {
             this.Hide();
             this.parent.Show();
             e.Cancel = true;
+            this.isStopped = true;
+            //this.simulationThread.Join();
+            await this.MyTask;
         }
 
         private void button1_Click(object sender, EventArgs e)

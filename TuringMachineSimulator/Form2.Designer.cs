@@ -76,7 +76,7 @@
             this.continiousStep.Text = "⏩";
             this.continiousStep.UseCompatibleTextRendering = true;
             this.continiousStep.UseVisualStyleBackColor = true;
-            this.continiousStep.Click += new System.EventHandler(this.continiousStep_Click);
+            this.continiousStep.Click += new System.EventHandler(this.continuousStep_Click);
             // 
             // pictureBox1
             // 
@@ -272,10 +272,10 @@
             // 
             // positionText
             // 
-            this.positionText.Location = new System.Drawing.Point(450, 104);
+            this.positionText.Location = new System.Drawing.Point(12, 12);
             this.positionText.Name = "positionText";
             this.positionText.ReadOnly = true;
-            this.positionText.Size = new System.Drawing.Size(49, 26);
+            this.positionText.Size = new System.Drawing.Size(106, 26);
             this.positionText.TabIndex = 16;
             this.positionText.TextChanged += new System.EventHandler(this.positionText_TextChanged);
             // 
