@@ -10,9 +10,6 @@ namespace TuringMachineSimulator
         CompilerForm parent;
         public Button[] buttons;
         public bool isContinuouslyRunning = false;
-        public bool isContinuouslyRunningStopped = false;
-
-        public Thread continuousSimulationThread;
 
         public SimulatorForm(CompilerForm parent)
         {
@@ -38,36 +35,9 @@ namespace TuringMachineSimulator
                 this.button18,
                 this.button19
         };
-            this.continuousSimulationThread = new Thread(this.ContinousSimulation);
-            this.continuousSimulationThread.Start();
+            this.continuousSimulationTimerInterval.Value = this.simulationTimer.Interval;
         }
-        private async void ContinousSimulation()
-        {
-            while (true)
-            {
-                if (isContinuouslyRunningStopped)
-                {
-                    break;
-                }
-                bool isContinuing;
-                if (!isContinuouslyRunning)
-                {
-                    continue;
-                }
-                else
-                {
-                    isContinuing = this.parent.StepSimulator();
-                    this.positionText.Text = $"Head position: {this.parent.simulator.tape.position}";
-                    await Task.Delay(200);
-                    if (!isContinuing)
-                    {
-                        this.FinishSimulation();
-                        break;
-                    }
-                }
-            }
-        }
-
+        
         private void listView1_SelectedIndexChanged(object sender, EventArgs e)
         {
 
@@ -120,12 +90,14 @@ namespace TuringMachineSimulator
         {
             this.singleStepButton.Enabled = false;
             this.continiousStepButton.Enabled = false;
+            this.instantaneousEvaluateButton.Enabled = false;
         }
 
         public void EnableStepButtons()
         {
             this.singleStepButton.Enabled = true;
             this.continiousStepButton.Enabled = true;
+            this.instantaneousEvaluateButton.Enabled = true;
         }
         private void continuousStepButton_Click(object sender, EventArgs e)
         {
@@ -134,12 +106,14 @@ namespace TuringMachineSimulator
                 this.continiousStepButton.Text = "⏩";
                 isContinuouslyRunning = false;
                 this.singleStepButton.Enabled = true;
+                this.instantaneousEvaluateButton.Enabled = true;
             }
             else
             {
                 isContinuouslyRunning = true;
                 this.continiousStepButton.Text = "⏸";
                 this.singleStepButton.Enabled = false;
+                this.instantaneousEvaluateButton.Enabled = false;
             }
         }
 
@@ -166,6 +140,43 @@ namespace TuringMachineSimulator
         private void SimulatorForm_FormClosed(object sender, FormClosedEventArgs e)
         {
             
+        }
+
+        private void simulationTimer_Tick(object sender, EventArgs e)
+        {
+            if (this.isContinuouslyRunning)
+            {
+                bool isContinuing = this.parent.StepSimulator();
+                this.positionText.Text = $"Head position: {this.parent.simulator.tape.position}";
+
+                if (!isContinuing)
+                {
+                    this.FinishSimulation();
+                }
+            }
+        }
+
+        private void continuousSimulationTimerInterval_ValueChanged(object sender, EventArgs e)
+        {
+            this.simulationTimer.Interval = (int) this.continuousSimulationTimerInterval.Value;
+        }
+
+        private async void instantaneousEvaluateButton_Click(object sender, EventArgs e)
+        {
+            this.singleStepButton.Enabled = false;
+            this.continiousStepButton.Enabled = false;
+
+            await Task.Run(() =>
+            {
+                while (this.parent.StepSimulator(visualize: false))
+                {
+
+                }
+                this.parent.VisualizeResult();
+                this.positionText.Text = $"Head position: {this.parent.simulator.tape.position}";
+                this.FinishSimulation();
+            });
+
         }
     }
 }

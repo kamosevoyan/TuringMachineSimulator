@@ -52,14 +52,17 @@
             this.inputSetButton = new System.Windows.Forms.Button();
             this.textBox1 = new System.Windows.Forms.TextBox();
             this.positionText = new System.Windows.Forms.TextBox();
-            this.timer1 = new System.Windows.Forms.Timer(this.components);
+            this.simulationTimer = new System.Windows.Forms.Timer(this.components);
+            this.continuousSimulationTimerInterval = new System.Windows.Forms.NumericUpDown();
+            this.instantaneousEvaluateButton = new System.Windows.Forms.Button();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.continuousSimulationTimerInterval)).BeginInit();
             this.SuspendLayout();
             // 
             // singleStepButton
             // 
             this.singleStepButton.Font = new System.Drawing.Font("Microsoft Sans Serif", 20F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.singleStepButton.Location = new System.Drawing.Point(796, 416);
+            this.singleStepButton.Location = new System.Drawing.Point(737, 418);
             this.singleStepButton.Name = "singleStepButton";
             this.singleStepButton.Size = new System.Drawing.Size(53, 52);
             this.singleStepButton.TabIndex = 1;
@@ -71,7 +74,7 @@
             // continiousStepButton
             // 
             this.continiousStepButton.Font = new System.Drawing.Font("Microsoft Sans Serif", 20F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.continiousStepButton.Location = new System.Drawing.Point(855, 416);
+            this.continiousStepButton.Location = new System.Drawing.Point(796, 418);
             this.continiousStepButton.Name = "continiousStepButton";
             this.continiousStepButton.Size = new System.Drawing.Size(53, 52);
             this.continiousStepButton.TabIndex = 2;
@@ -281,12 +284,54 @@
             this.positionText.TabIndex = 16;
             this.positionText.TextChanged += new System.EventHandler(this.positionText_TextChanged);
             // 
+            // simulationTimer
+            // 
+            this.simulationTimer.Enabled = true;
+            this.simulationTimer.Tick += new System.EventHandler(this.simulationTimer_Tick);
+            // 
+            // continuousSimulationTimerInterval
+            // 
+            this.continuousSimulationTimerInterval.Location = new System.Drawing.Point(823, 24);
+            this.continuousSimulationTimerInterval.Maximum = new decimal(new int[] {
+            500,
+            0,
+            0,
+            0});
+            this.continuousSimulationTimerInterval.Minimum = new decimal(new int[] {
+            1,
+            0,
+            0,
+            0});
+            this.continuousSimulationTimerInterval.Name = "continuousSimulationTimerInterval";
+            this.continuousSimulationTimerInterval.Size = new System.Drawing.Size(63, 26);
+            this.continuousSimulationTimerInterval.TabIndex = 17;
+            this.continuousSimulationTimerInterval.Value = new decimal(new int[] {
+            5,
+            0,
+            0,
+            0});
+            this.continuousSimulationTimerInterval.ValueChanged += new System.EventHandler(this.continuousSimulationTimerInterval_ValueChanged);
+            // 
+            // instantaneousEvaluateButton
+            // 
+            this.instantaneousEvaluateButton.Font = new System.Drawing.Font("Microsoft Sans Serif", 20F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.instantaneousEvaluateButton.Location = new System.Drawing.Point(853, 418);
+            this.instantaneousEvaluateButton.Name = "instantaneousEvaluateButton";
+            this.instantaneousEvaluateButton.Size = new System.Drawing.Size(53, 52);
+            this.instantaneousEvaluateButton.TabIndex = 18;
+            this.instantaneousEvaluateButton.Text = "⏭️";
+            this.instantaneousEvaluateButton.UseCompatibleTextRendering = true;
+            this.instantaneousEvaluateButton.UseVisualStyleBackColor = true;
+            this.instantaneousEvaluateButton.Click += new System.EventHandler(this.instantaneousEvaluateButton_Click);
+            // 
             // SimulatorForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(9F, 20F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BackColor = System.Drawing.Color.White;
             this.ClientSize = new System.Drawing.Size(915, 480);
+            this.Controls.Add(this.instantaneousEvaluateButton);
+            this.Controls.Add(this.continuousSimulationTimerInterval);
             this.Controls.Add(this.positionText);
             this.Controls.Add(this.textBox1);
             this.Controls.Add(this.inputSetButton);
@@ -318,6 +363,7 @@
             this.FormClosed += new System.Windows.Forms.FormClosedEventHandler(this.SimulatorForm_FormClosed);
             this.Load += new System.EventHandler(this.Form2_Load);
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.continuousSimulationTimerInterval)).EndInit();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -346,6 +392,8 @@
         private System.Windows.Forms.Button inputSetButton;
         private System.Windows.Forms.TextBox textBox1;
         private System.Windows.Forms.TextBox positionText;
-        private System.Windows.Forms.Timer timer1;
+        private System.Windows.Forms.Timer simulationTimer;
+        private System.Windows.Forms.NumericUpDown continuousSimulationTimerInterval;
+        private System.Windows.Forms.Button instantaneousEvaluateButton;
     }
 }

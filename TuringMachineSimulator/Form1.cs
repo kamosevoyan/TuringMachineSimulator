@@ -43,12 +43,18 @@ namespace TuringMachineSimulator
             this.simulateToolStripMenuItem.Enabled = false;
         }
 
-        public bool StepSimulator()
+        public void VisualizeResult()
         {
-            bool result = simulator.Step();
             string layout = simulator.GetLayout();
             this.setTape(layout);
-
+        }
+        public bool StepSimulator(bool visualize=true)
+        {
+            bool result = simulator.Step();
+            if (visualize)
+            {
+                VisualizeResult();
+            }
             return result;
         }
 
@@ -193,8 +199,7 @@ namespace TuringMachineSimulator
 
         private void CompilerForm_FormClosed(object sender, FormClosedEventArgs e)
         {
-            this.simulatorForm.isContinuouslyRunningStopped = false;
-            this.simulatorForm.continuousSimulationThread.Join();            
+          
         }
     }
 }
