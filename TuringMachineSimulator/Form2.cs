@@ -78,6 +78,8 @@ namespace TuringMachineSimulator
             this.DisableStepButtons();
             this.inputSetButton.Enabled = true;
             this.positionText.Text = "0";
+            Thread simulationThread = new Thread(SimulationLoop);
+            simulationThread.Start();
         }
 
         private void pictureBox1_Click(object sender, EventArgs e)
@@ -106,17 +108,19 @@ namespace TuringMachineSimulator
             else
             {
                 isRunning = true;
-                this.continiousStep.Text = "⏸";
-                Thread simulationThread = new Thread(SimulationLoop);
-                simulationThread.Start();
+                this.continiousStep.Text = "⏸";                
             }
         }
 
         async private void SimulationLoop()
         {
             bool isContinuing;
-            while (isRunning)
+            while (true)
             {
+                if (!isRunning) 
+                {
+                    continue;
+                }
                 isContinuing = this.parent.step();
                 this.positionText.Text = this.parent.simulator.tape.position.ToString();
                 await Task.Delay(200);
