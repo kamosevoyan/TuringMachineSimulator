@@ -104,11 +104,13 @@ namespace TuringMachineSimulator
             {
                 this.continiousStep.Text = "⏩";
                 isRunning = false;
+                this.singleStep.Enabled = true;
             }
             else
             {
                 isRunning = true;
-                this.continiousStep.Text = "⏸";                
+                this.continiousStep.Text = "⏸";
+                this.singleStep.Enabled = false;
             }
         }
 
