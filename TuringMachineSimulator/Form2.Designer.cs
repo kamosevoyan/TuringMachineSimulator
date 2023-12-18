@@ -28,9 +28,10 @@
         /// </summary>
         private void InitializeComponent()
         {
+            this.components = new System.ComponentModel.Container();
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(SimulatorForm));
-            this.singleStep = new System.Windows.Forms.Button();
-            this.continiousStep = new System.Windows.Forms.Button();
+            this.singleStepButton = new System.Windows.Forms.Button();
+            this.continiousStepButton = new System.Windows.Forms.Button();
             this.pictureBox1 = new System.Windows.Forms.PictureBox();
             this.button4 = new System.Windows.Forms.Button();
             this.button5 = new System.Windows.Forms.Button();
@@ -51,32 +52,33 @@
             this.inputSetButton = new System.Windows.Forms.Button();
             this.textBox1 = new System.Windows.Forms.TextBox();
             this.positionText = new System.Windows.Forms.TextBox();
+            this.timer1 = new System.Windows.Forms.Timer(this.components);
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).BeginInit();
             this.SuspendLayout();
             // 
-            // singleStep
+            // singleStepButton
             // 
-            this.singleStep.Font = new System.Drawing.Font("Microsoft Sans Serif", 20F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.singleStep.Location = new System.Drawing.Point(796, 416);
-            this.singleStep.Name = "singleStep";
-            this.singleStep.Size = new System.Drawing.Size(53, 52);
-            this.singleStep.TabIndex = 1;
-            this.singleStep.Text = "⏯";
-            this.singleStep.UseCompatibleTextRendering = true;
-            this.singleStep.UseVisualStyleBackColor = true;
-            this.singleStep.Click += new System.EventHandler(this.button2_Click);
+            this.singleStepButton.Font = new System.Drawing.Font("Microsoft Sans Serif", 20F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.singleStepButton.Location = new System.Drawing.Point(796, 416);
+            this.singleStepButton.Name = "singleStepButton";
+            this.singleStepButton.Size = new System.Drawing.Size(53, 52);
+            this.singleStepButton.TabIndex = 1;
+            this.singleStepButton.Text = "⏯";
+            this.singleStepButton.UseCompatibleTextRendering = true;
+            this.singleStepButton.UseVisualStyleBackColor = true;
+            this.singleStepButton.Click += new System.EventHandler(this.singleStepButton_Click);
             // 
-            // continiousStep
+            // continiousStepButton
             // 
-            this.continiousStep.Font = new System.Drawing.Font("Microsoft Sans Serif", 20F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.continiousStep.Location = new System.Drawing.Point(855, 416);
-            this.continiousStep.Name = "continiousStep";
-            this.continiousStep.Size = new System.Drawing.Size(53, 52);
-            this.continiousStep.TabIndex = 2;
-            this.continiousStep.Text = "⏩";
-            this.continiousStep.UseCompatibleTextRendering = true;
-            this.continiousStep.UseVisualStyleBackColor = true;
-            this.continiousStep.Click += new System.EventHandler(this.continuousStep_Click);
+            this.continiousStepButton.Font = new System.Drawing.Font("Microsoft Sans Serif", 20F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.continiousStepButton.Location = new System.Drawing.Point(855, 416);
+            this.continiousStepButton.Name = "continiousStepButton";
+            this.continiousStepButton.Size = new System.Drawing.Size(53, 52);
+            this.continiousStepButton.TabIndex = 2;
+            this.continiousStepButton.Text = "⏩";
+            this.continiousStepButton.UseCompatibleTextRendering = true;
+            this.continiousStepButton.UseVisualStyleBackColor = true;
+            this.continiousStepButton.Click += new System.EventHandler(this.continuousStepButton_Click);
             // 
             // pictureBox1
             // 
@@ -275,7 +277,7 @@
             this.positionText.Location = new System.Drawing.Point(12, 12);
             this.positionText.Name = "positionText";
             this.positionText.ReadOnly = true;
-            this.positionText.Size = new System.Drawing.Size(106, 26);
+            this.positionText.Size = new System.Drawing.Size(141, 26);
             this.positionText.TabIndex = 16;
             this.positionText.TextChanged += new System.EventHandler(this.positionText_TextChanged);
             // 
@@ -305,14 +307,15 @@
             this.Controls.Add(this.button5);
             this.Controls.Add(this.button4);
             this.Controls.Add(this.pictureBox1);
-            this.Controls.Add(this.continiousStep);
-            this.Controls.Add(this.singleStep);
+            this.Controls.Add(this.continiousStepButton);
+            this.Controls.Add(this.singleStepButton);
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.Fixed3D;
             this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.MaximizeBox = false;
             this.Name = "SimulatorForm";
             this.Text = "Simulator";
             this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.Form2_FormClosing);
+            this.FormClosed += new System.Windows.Forms.FormClosedEventHandler(this.SimulatorForm_FormClosed);
             this.Load += new System.EventHandler(this.Form2_Load);
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).EndInit();
             this.ResumeLayout(false);
@@ -321,8 +324,8 @@
         }
 
         #endregion
-        private System.Windows.Forms.Button singleStep;
-        private System.Windows.Forms.Button continiousStep;
+        private System.Windows.Forms.Button singleStepButton;
+        private System.Windows.Forms.Button continiousStepButton;
         private System.Windows.Forms.PictureBox pictureBox1;
         private System.Windows.Forms.Button button4;
         private System.Windows.Forms.Button button5;
@@ -343,5 +346,6 @@
         private System.Windows.Forms.Button inputSetButton;
         private System.Windows.Forms.TextBox textBox1;
         private System.Windows.Forms.TextBox positionText;
+        private System.Windows.Forms.Timer timer1;
     }
 }

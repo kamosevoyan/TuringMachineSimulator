@@ -147,6 +147,8 @@
             this.Name = "CompilerForm";
             this.Text = "Compiler";
             this.TopMost = true;
+            this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.CompilerForm_FormClosing);
+            this.FormClosed += new System.Windows.Forms.FormClosedEventHandler(this.CompilerForm_FormClosed);
             this.Load += new System.EventHandler(this.Form1_Load);
             this.SizeChanged += new System.EventHandler(this.Form1_ResizeBegin);
             this.menuStrip1.ResumeLayout(false);

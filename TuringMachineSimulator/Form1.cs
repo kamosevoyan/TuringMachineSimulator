@@ -1,13 +1,7 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
 using System.Drawing;
 using System.IO;
-using System.Linq;
-using System.Runtime.InteropServices.ComTypes;
-using System.Text;
-using System.Threading.Tasks;
+
 using System.Windows.Forms;
 
 namespace TuringMachineSimulator
@@ -49,7 +43,7 @@ namespace TuringMachineSimulator
             this.simulateToolStripMenuItem.Enabled = false;
         }
 
-        public bool step()
+        public bool StepSimulator()
         {
             bool result = simulator.Step();
             string layout = simulator.GetLayout();
@@ -65,7 +59,7 @@ namespace TuringMachineSimulator
                 this.simulatorForm.buttons[i].Text = values[i].ToString();
             }
         }
-        public void resetVisualisationTape()
+        public void ResetVisualizationTape()
         {
             int n = this.simulatorForm.buttons.Length;
             for (int i = 0; i < n; i++)
@@ -76,7 +70,6 @@ namespace TuringMachineSimulator
         }
         public void setSimulatorInput(string input)
         {
-            //TODO: add checking here
             this.simulator.SetInput(input);
         }
         private void fileToolStripMenuItem_Click(object sender, EventArgs e)
@@ -124,7 +117,6 @@ namespace TuringMachineSimulator
                 return;
             }
 
-
             try
             {
                 compiler.SetStream(source);
@@ -147,10 +139,8 @@ namespace TuringMachineSimulator
                 return;
             }
 
-
-            this.resetVisualisationTape();
-            this.simulator.reset();
-
+            this.ResetVisualizationTape();
+            this.simulator.Reset();
 
             this.simulator.SetConfiguration(this.compiledSource);
             this.simulatorForm.Initialize();
@@ -168,7 +158,6 @@ namespace TuringMachineSimulator
         {
             OpenFileDialog openFileDialog = new OpenFileDialog();
 
-            // Set the title and filters for the dialog
             openFileDialog.Title = "Open File";
             openFileDialog.Filter = "All files (*.*)|*.*";
 
@@ -185,18 +174,27 @@ namespace TuringMachineSimulator
         {
             SaveFileDialog saveFileDialog = new SaveFileDialog();
 
-            // Set the title and filters for the dialog
             saveFileDialog.Title = "Save File";
             saveFileDialog.Filter = "All files (*.*)|*.*";
 
             if (saveFileDialog.ShowDialog() == DialogResult.OK)
             {
-                // User selected a location to save the file
                 string selectedFilePath = saveFileDialog.FileName;
                 StreamWriter sw = new StreamWriter(selectedFilePath);
                 sw.Write(this.codeTextBox.Text);
                 sw.Close();
             }
+        }
+
+        private void CompilerForm_FormClosing(object sender, FormClosingEventArgs e)
+        {
+
+        }
+
+        private void CompilerForm_FormClosed(object sender, FormClosedEventArgs e)
+        {
+            this.simulatorForm.isContinuouslyRunningStopped = false;
+            this.simulatorForm.continuousSimulationThread.Join();            
         }
     }
 }

@@ -178,10 +178,10 @@ namespace TuringMachineSimulator
             }
 
             this.tape.set(input, this.emptySymbol);
-            this.reset();
+            this.Reset();
         }
 
-        public void reset()
+        public void Reset()
         {
             this.currentState = this.initialState;
         }
