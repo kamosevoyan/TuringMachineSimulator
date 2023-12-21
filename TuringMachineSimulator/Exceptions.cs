@@ -12,4 +12,11 @@ namespace TuringMachineSimulator
         public SyntaxErrorException(string message) : base(message) { }
 
     }
+
+    public class SimulatorErrorException : ApplicationException
+    {
+
+        public SimulatorErrorException(string message) : base(message) { }
+
+    }
 }
