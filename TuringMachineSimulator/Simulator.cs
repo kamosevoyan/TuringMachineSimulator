@@ -149,9 +149,9 @@ namespace TuringMachineSimulator
         string alphabetSymbols;
         string directions;
 
-        Dictionary<Tuple<string, char>, string> lambda;
-        Dictionary<Tuple<string, char>, string> delta;
-        Dictionary<Tuple<string, char>, string> nyu;
+        Dictionary<(string, char), string> lambda;
+        Dictionary<(string, char), string> delta;
+        Dictionary<(string, char), string> nyu;
 
         string currentState;
         char currentSymbol;
@@ -163,9 +163,9 @@ namespace TuringMachineSimulator
             this.tape = new Tape();
             this.directions = "<@>";
 
-            this.lambda = new Dictionary<Tuple<string, char>, string> { };
-            this.delta = new Dictionary<Tuple<string, char>, string> { };
-            this.nyu = new Dictionary<Tuple<string, char>, string> { };
+            this.lambda = new Dictionary<(string, char), string> { };
+            this.delta = new Dictionary<(string, char), string> { };
+            this.nyu = new Dictionary<(string, char), string> { };
 
             this.isFinished = false;
 
@@ -294,7 +294,7 @@ namespace TuringMachineSimulator
                         throw new Exception($"Unknown direction {dirToken} in {row} {column}");
                     }
 
-                    Tuple<string, char> key = new Tuple<string, char>(this.stateSymbols[row], this.alphabetSymbols[column]);
+                    (string, char) key = (this.stateSymbols[row], this.alphabetSymbols[column]);
                     this.lambda[key] = rightToken;
                     this.delta[key] = leftToken;
                     this.nyu[key] = dirToken;
@@ -378,7 +378,7 @@ namespace TuringMachineSimulator
         {
             this.currentSymbol = this.tape.get(this.tape.position);
 
-            Tuple<string, char> key = new Tuple<string, char>(currentState, currentSymbol);
+            (string, char) key = (currentState, currentSymbol);
 
             string newState = this.lambda[key];
             string newSymbol = this.delta[key];
