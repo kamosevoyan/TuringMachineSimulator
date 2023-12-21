@@ -10,6 +10,7 @@ namespace TuringMachineSimulator
         CompilerForm parent;
         public Button[] buttons;
         public bool isContinuouslyRunning = false;
+        private bool isContinuing;
 
         public SimulatorForm(CompilerForm parent)
         {
@@ -63,10 +64,25 @@ namespace TuringMachineSimulator
             this.parent.setTape(layout);
         }
 
+        private void StepWrapper(bool visualize)
+        {
+            try
+            {
+                this.isContinuing = this.parent.StepSimulator(visualize);
+                if (visualize)
+                {
+                    this.positionText.Text = $"Head position: {this.parent.simulator.tape.position}";
+                }
+            }
+            catch (SimulatorErrorException ex) 
+            {
+                this.isContinuing = false;
+            }
+
+        }
         private void singleStepButton_Click(object sender, EventArgs e)
         {
-            bool isContinuing = this.parent.StepSimulator();
-            this.positionText.Text = $"Head position: {this.parent.simulator.tape.position}";
+            this.StepWrapper(visualize:true);
 
             if (!isContinuing)
             {
@@ -117,7 +133,7 @@ namespace TuringMachineSimulator
             }
         }
 
-        private void FinishSimulation()
+        public void FinishSimulation()
         {
             this.continiousStepButton.Text = "⏩";
             this.DisableStepButtons();
@@ -146,8 +162,7 @@ namespace TuringMachineSimulator
         {
             if (this.isContinuouslyRunning)
             {
-                bool isContinuing = this.parent.StepSimulator();
-                this.positionText.Text = $"Head position: {this.parent.simulator.tape.position}";
+                this.StepWrapper(visualize:true);
 
                 if (!isContinuing)
                 {
@@ -169,9 +184,13 @@ namespace TuringMachineSimulator
 
             await Task.Run(() =>
             {
-                while (this.parent.StepSimulator(visualize: false))
+                while (true)
                 {
-
+                    this.StepWrapper(visualize:false);
+                    if (!this.isContinuing)
+                    {
+                        break;
+                    }
                 }
                 this.parent.VisualizeResult();
                 this.positionText.Text = $"Head position: {this.parent.simulator.tape.position}";

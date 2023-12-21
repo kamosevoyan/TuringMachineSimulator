@@ -48,8 +48,9 @@ namespace TuringMachineSimulator
             string layout = simulator.GetLayout();
             this.setTape(layout);
         }
-        public bool StepSimulator(bool visualize=true)
+        public bool StepSimulator(bool visualize)
         {
+
             bool result = simulator.Step();
             if (visualize)
             {

@@ -380,6 +380,11 @@ namespace TuringMachineSimulator
 
             (string, char) key = (currentState, currentSymbol);
 
+            if (!(this.lambda.ContainsKey(key) && this.delta.ContainsKey(key) && this.nyu.ContainsKey(key)))
+            {
+                throw new SimulatorErrorException($"Unknown key {key}");
+            }
+
             string newState = this.lambda[key];
             string newSymbol = this.delta[key];
             string move = this.nyu[key];
