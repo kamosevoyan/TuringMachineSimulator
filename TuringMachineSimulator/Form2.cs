@@ -151,6 +151,7 @@ namespace TuringMachineSimulator
 
                 if (!isContinuing)
                 {
+                    this.isContinuouslyRunning = false;
                     this.FinishSimulation();
                 }
             }
