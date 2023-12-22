@@ -1,4 +1,4 @@
-# In this project compiler for language for Turing machine simulator is realised.
+# The project contains simulator, simple high level language and compiler for Turing machine. A simple UI is presented.
 
 ### The syntax of the language:
 
@@ -87,8 +87,6 @@ Gives error command to the machine to halt unsuccessfully.
 * continue/break statements <br/>
 These statements are used as flow controls in **while**, **do_while** and **repeat_until** loops.
 <br/> If these statements aren't contained in any of loops given above, the parser trows an exception.
-
-## The compiler pareses program using tree based algorithm.                            
               
 
               
