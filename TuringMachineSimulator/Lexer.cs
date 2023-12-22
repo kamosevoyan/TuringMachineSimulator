@@ -1,66 +1,63 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
-using System.Windows.Forms;
-using TuringMachineSimulator;
 
 namespace TuringMachineSimulator
 {
-    enum KEYWORD
+    enum TokenType
     {
-        MAIN, REPEAT, UNTIL, DO, WHILE, IF, ELSE, WRITE, LEFT, RIGHT, EXIT, ERROR, L_BR, R_BR, L_PAR, R_PAR,
-        COLON, SEMICOLON, SYMBOL, COMMA, END, CONTINUE, BREAK, NOT, FUNCTION, NAME, GLOBAL_SYMBOLS,
-        SWITCH, CASE, DEFAULT
+        Main, Repeat, Until, Do, While, If, Else, Write, Left, Right, Exit, Error, LeftBrace, RightBrace, LeftParenthesis, RightParenthesis,
+        Colon, Semicolon, Symbol, Comma, End, Continue, Break, Not, Function, Name, GlobalSymbols,
+        Switch, Case, Default
     }
     internal class Lexer
     {
-        private KEYWORD _keyword;
-        private string _value;
+        private TokenType currentKeyword;
+        private string currentValue;
         private int position;
-        private Dictionary<string, KEYWORD> keyMap;
-        private string tokenPattern;
+        private readonly Dictionary<string, TokenType> keyMap;
+        private readonly string tokenPattern;
         private string reader;
         private List<string> tokens;
         public List<(int, int)> tokenPositions;
 
         public Lexer()
         {
-            this.keyMap = new Dictionary<string, KEYWORD>();
-            this.keyMap["main"] = KEYWORD.MAIN;
-            this.keyMap["while"] = KEYWORD.WHILE;
-            this.keyMap["repeat"] = KEYWORD.REPEAT;
-            this.keyMap["until"] = KEYWORD.UNTIL;
-            this.keyMap["do"] = KEYWORD.DO;
-            this.keyMap["if"] = KEYWORD.IF;
-            this.keyMap["else"] = KEYWORD.ELSE;
-            this.keyMap["write"] = KEYWORD.WRITE;
-            this.keyMap["left"] = KEYWORD.LEFT;
-            this.keyMap["right"] = KEYWORD.RIGHT;
-            this.keyMap["exit"] = KEYWORD.EXIT;
-            this.keyMap["error"] = KEYWORD.ERROR;
-            this.keyMap["not"] = KEYWORD.NOT;
+            this.keyMap = new Dictionary<string, TokenType>();
+            this.keyMap["main"] = TokenType.Main;
+            this.keyMap["while"] = TokenType.While;
+            this.keyMap["repeat"] = TokenType.Repeat;
+            this.keyMap["until"] = TokenType.Until;
+            this.keyMap["do"] = TokenType.Do;
+            this.keyMap["if"] = TokenType.If;
+            this.keyMap["else"] = TokenType.Else;
+            this.keyMap["write"] = TokenType.Write;
+            this.keyMap["left"] = TokenType.Left;
+            this.keyMap["right"] = TokenType.Right;
+            this.keyMap["exit"] = TokenType.Exit;
+            this.keyMap["error"] = TokenType.Error;
+            this.keyMap["not"] = TokenType.Not;
 
-            this.keyMap["continue"] = KEYWORD.CONTINUE;
-            this.keyMap["break"] = KEYWORD.BREAK;
+            this.keyMap["continue"] = TokenType.Continue;
+            this.keyMap["break"] = TokenType.Break;
 
-            this.keyMap["{"] = KEYWORD.L_BR;
-            this.keyMap["}"] = KEYWORD.R_BR;
-            this.keyMap["("] = KEYWORD.L_PAR;
-            this.keyMap[")"] = KEYWORD.R_PAR;
-            this.keyMap[";"] = KEYWORD.SEMICOLON;
-            this.keyMap[":"] = KEYWORD.COLON;
-            this.keyMap[","] = KEYWORD.COMMA;
+            this.keyMap["{"] = TokenType.LeftBrace;
+            this.keyMap["}"] = TokenType.RightBrace;
+            this.keyMap["("] = TokenType.LeftParenthesis;
+            this.keyMap[")"] = TokenType.RightParenthesis;
+            this.keyMap[";"] = TokenType.Semicolon;
+            this.keyMap[":"] = TokenType.Colon;
+            this.keyMap[","] = TokenType.Comma;
 
 
-            this.keyMap["global_symbols"] = KEYWORD.GLOBAL_SYMBOLS;
-            this.keyMap["switch"] = KEYWORD.SWITCH;
-            this.keyMap["case"] = KEYWORD.CASE;
-            this.keyMap["default"] = KEYWORD.DEFAULT;
+            this.keyMap["global_symbols"] = TokenType.GlobalSymbols;
+            this.keyMap["switch"] = TokenType.Switch;
+            this.keyMap["case"] = TokenType.Case;
+            this.keyMap["default"] = TokenType.Default;
 
             this.tokenPattern = @"\w(\w\d)+";
 
-            this.keyMap["function"] = KEYWORD.FUNCTION;
+            this.keyMap["function"] = TokenType.Function;
         }
         public void SetStream(string stream)
         {
@@ -135,13 +132,13 @@ namespace TuringMachineSimulator
 
             if (this.keyMap.ContainsKey(temp))
             {
-                this._keyword = this.keyMap[temp];
-                this._value = temp;
+                this.currentKeyword = this.keyMap[temp];
+                this.currentValue = temp;
             }
             else if (temp.Length == 1)
             {
-                this._keyword = KEYWORD.SYMBOL;
-                this._value = temp;
+                this.currentKeyword = TokenType.Symbol;
+                this.currentValue = temp;
             }
             else
             {
@@ -149,8 +146,8 @@ namespace TuringMachineSimulator
                 {
                     throw new SyntaxErrorException($"Unacceptable name {temp} in {this.tokenPositions[this.position - 1]}");
                 }
-                this._keyword = KEYWORD.NAME;
-                this._value = temp;
+                this.currentKeyword = TokenType.Name;
+                this.currentValue = temp;
             }
 
             return true;
@@ -159,14 +156,14 @@ namespace TuringMachineSimulator
         {
             get
             {
-                return this._value;
+                return this.currentValue;
             }
         }
-        public KEYWORD CurrentKeyword
+        public TokenType CurrentKeyword
         {
             get
             {
-                return this._keyword;
+                return this.currentKeyword;
             }
         }
     }

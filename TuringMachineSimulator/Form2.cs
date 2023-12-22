@@ -7,10 +7,11 @@ namespace TuringMachineSimulator
 {
     public partial class SimulatorForm : Form
     {
-        CompilerForm parent;
+        private CompilerForm parent;
+        private Simulator.MachineState simulatorState;
+
         public Button[] buttons;
         public bool isContinuouslyRunning = false;
-        private bool isContinuing;
 
         public SimulatorForm(CompilerForm parent)
         {
@@ -38,21 +39,23 @@ namespace TuringMachineSimulator
         };
             this.continuousSimulationTimerInterval.Value = this.simulationTimer.Interval;
         }
-        
-        private void listView1_SelectedIndexChanged(object sender, EventArgs e)
-        {
 
+        private bool IsInputValid(string inout)
+        {
+            foreach (char ch in inout)
+            {
+                if (!this.parent.GlobalSymbols.Contains(ch.ToString()))
+                {
+                    return false;
+                }
+            }
+            return true;
         }
 
-        private void Form2_Load(object sender, EventArgs e)
+        private void Button20_Click(object sender, EventArgs e)
         {
 
-        }
-
-        private void button20_Click(object sender, EventArgs e)
-        {
-
-            if (this.textBox1.Text.Length == 0)
+            if ((this.textBox1.Text.Length == 0) || (!IsInputValid(this.textBox1.Text)))
             {
                 return;
             }
@@ -66,25 +69,28 @@ namespace TuringMachineSimulator
 
         private void StepWrapper(bool visualize)
         {
-            try
+
+            this.simulatorState = this.parent.StepSimulator(visualize);
+            if (visualize)
             {
-                this.isContinuing = this.parent.StepSimulator(visualize);
-                if (visualize)
-                {
-                    this.positionText.Text = $"Head position: {this.parent.simulator.tape.position}";
-                }
+                this.positionText.Text = $"Head position: {this.parent.simulator.tape.position}";
             }
-            catch (SimulatorErrorException ex) 
+
+            if (this.simulatorState == Simulator.MachineState.Failed)
             {
-                this.isContinuing = false;
+                this.continiousStepButton.Text = "⏩";
+                this.DisableStepButtons();
+                this.inputSetButton.Enabled = true;
+                this.isContinuouslyRunning = false;
+                MessageBox.Show("The simulator terminated with error.");
             }
 
         }
-        private void singleStepButton_Click(object sender, EventArgs e)
+        private void SingleStepButton_Click(object sender, EventArgs e)
         {
-            this.StepWrapper(visualize:true);
+            this.StepWrapper(visualize: true);
 
-            if (!isContinuing)
+            if (this.simulatorState == Simulator.MachineState.Terminated)
             {
                 this.FinishSimulation();
             }
@@ -94,12 +100,9 @@ namespace TuringMachineSimulator
         {
             this.DisableStepButtons();
             this.inputSetButton.Enabled = true;
-            this.positionText.Text = $"Head position: {0}";            
-        }
-
-        private void pictureBox1_Click(object sender, EventArgs e)
-        {
-
+            this.isContinuouslyRunning = false;
+            this.positionText.Text = $"Head position: {0}";
+            this.continiousStepButton.Text = "⏩";
         }
 
         public void DisableStepButtons()
@@ -115,7 +118,7 @@ namespace TuringMachineSimulator
             this.continiousStepButton.Enabled = true;
             this.instantaneousEvaluateButton.Enabled = true;
         }
-        private void continuousStepButton_Click(object sender, EventArgs e)
+        private void ContinuousStepButton_Click(object sender, EventArgs e)
         {
             if (isContinuouslyRunning)
             {
@@ -139,32 +142,23 @@ namespace TuringMachineSimulator
             this.DisableStepButtons();
             MessageBox.Show("Finish");
             this.inputSetButton.Enabled = true;
+            this.isContinuouslyRunning = false;
         }
 
-        private void Form2_FormClosing(object sender, FormClosingEventArgs e)
+        private void SimulatorForm_FormClosing(object sender, FormClosingEventArgs e)
         {
             this.Hide();
             this.parent.Show();
             e.Cancel = true;
         }
 
-        private void positionText_TextChanged(object sender, EventArgs e)
-        {
-
-        }
-
-        private void SimulatorForm_FormClosed(object sender, FormClosedEventArgs e)
-        {
-            
-        }
-
-        private void simulationTimer_Tick(object sender, EventArgs e)
+        private void SimulationTimer_Tick(object sender, EventArgs e)
         {
             if (this.isContinuouslyRunning)
             {
-                this.StepWrapper(visualize:true);
+                this.StepWrapper(visualize: true);
 
-                if (!isContinuing)
+                if (this.simulatorState == Simulator.MachineState.Terminated)
                 {
                     this.isContinuouslyRunning = false;
                     this.FinishSimulation();
@@ -172,12 +166,12 @@ namespace TuringMachineSimulator
             }
         }
 
-        private void continuousSimulationTimerInterval_ValueChanged(object sender, EventArgs e)
+        private void ContinuousSimulationTimerInterval_ValueChanged(object sender, EventArgs e)
         {
-            this.simulationTimer.Interval = (int) this.continuousSimulationTimerInterval.Value;
+            this.simulationTimer.Interval = (int)this.continuousSimulationTimerInterval.Value;
         }
 
-        private async void instantaneousEvaluateButton_Click(object sender, EventArgs e)
+        private async void InstantaneousEvaluateButton_Click(object sender, EventArgs e)
         {
             this.singleStepButton.Enabled = false;
             this.continiousStepButton.Enabled = false;
@@ -186,8 +180,8 @@ namespace TuringMachineSimulator
             {
                 while (true)
                 {
-                    this.StepWrapper(visualize:false);
-                    if (!this.isContinuing)
+                    this.StepWrapper(visualize: false);
+                    if (this.simulatorState == Simulator.MachineState.Terminated)
                     {
                         break;
                     }
@@ -197,6 +191,21 @@ namespace TuringMachineSimulator
                 this.FinishSimulation();
             });
 
+        }
+
+        private void singleStepButton_MouseHover(object sender, EventArgs e)
+        {
+            toolTip1.Show("Single step", this.singleStepButton);
+        }
+
+        private void continiousStepButton_MouseHover(object sender, EventArgs e)
+        {
+            toolTip1.Show("Self running", this.continiousStepButton);
+        }
+
+        private void instantaneousEvaluateButton_MouseHover(object sender, EventArgs e)
+        {
+            toolTip1.Show("Instantaneous run", this.instantaneousEvaluateButton);
         }
     }
 }

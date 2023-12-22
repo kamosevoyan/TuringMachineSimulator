@@ -48,26 +48,26 @@
             this.codeTextBox.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
             | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
-            this.codeTextBox.Location = new System.Drawing.Point(12, 36);
+            this.codeTextBox.Location = new System.Drawing.Point(11, 29);
             this.codeTextBox.Margin = new System.Windows.Forms.Padding(0);
-            this.codeTextBox.MinimumSize = new System.Drawing.Size(100, 100);
+            this.codeTextBox.MinimumSize = new System.Drawing.Size(89, 81);
             this.codeTextBox.Name = "codeTextBox";
             this.codeTextBox.ScrollBars = System.Windows.Forms.RichTextBoxScrollBars.Vertical;
-            this.codeTextBox.Size = new System.Drawing.Size(776, 402);
+            this.codeTextBox.Size = new System.Drawing.Size(690, 322);
             this.codeTextBox.TabIndex = 0;
             this.codeTextBox.Text = "global_symbols (_,0, 1)\nmain()\n{\n    left;\n    right;\n    exit;\n}";
             this.codeTextBox.TextChanged += new System.EventHandler(this.codeTextBox_TextChanged);
             // 
             // menuStrip1
             // 
-            this.menuStrip1.GripMargin = new System.Windows.Forms.Padding(2, 2, 0, 2);
             this.menuStrip1.ImageScalingSize = new System.Drawing.Size(24, 24);
             this.menuStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.fileToolStripMenuItem,
             this.runToolStripMenuItem});
             this.menuStrip1.Location = new System.Drawing.Point(0, 0);
             this.menuStrip1.Name = "menuStrip1";
-            this.menuStrip1.Size = new System.Drawing.Size(856, 33);
+            this.menuStrip1.Padding = new System.Windows.Forms.Padding(5, 2, 0, 2);
+            this.menuStrip1.Size = new System.Drawing.Size(761, 28);
             this.menuStrip1.TabIndex = 1;
             this.menuStrip1.Text = "menuStrip1";
             // 
@@ -78,28 +78,28 @@
             this.openToolStripMenuItem,
             this.saveToolStripMenuItem});
             this.fileToolStripMenuItem.Name = "fileToolStripMenuItem";
-            this.fileToolStripMenuItem.Size = new System.Drawing.Size(54, 29);
+            this.fileToolStripMenuItem.Size = new System.Drawing.Size(46, 24);
             this.fileToolStripMenuItem.Text = "File";
             this.fileToolStripMenuItem.Click += new System.EventHandler(this.fileToolStripMenuItem_Click);
             // 
             // newToolStripMenuItem
             // 
             this.newToolStripMenuItem.Name = "newToolStripMenuItem";
-            this.newToolStripMenuItem.Size = new System.Drawing.Size(158, 34);
+            this.newToolStripMenuItem.Size = new System.Drawing.Size(128, 26);
             this.newToolStripMenuItem.Text = "New";
             this.newToolStripMenuItem.Click += new System.EventHandler(this.newToolStripMenuItem_Click);
             // 
             // openToolStripMenuItem
             // 
             this.openToolStripMenuItem.Name = "openToolStripMenuItem";
-            this.openToolStripMenuItem.Size = new System.Drawing.Size(158, 34);
+            this.openToolStripMenuItem.Size = new System.Drawing.Size(128, 26);
             this.openToolStripMenuItem.Text = "Open";
             this.openToolStripMenuItem.Click += new System.EventHandler(this.openToolStripMenuItem_Click);
             // 
             // saveToolStripMenuItem
             // 
             this.saveToolStripMenuItem.Name = "saveToolStripMenuItem";
-            this.saveToolStripMenuItem.Size = new System.Drawing.Size(158, 34);
+            this.saveToolStripMenuItem.Size = new System.Drawing.Size(128, 26);
             this.saveToolStripMenuItem.Text = "Save";
             this.saveToolStripMenuItem.Click += new System.EventHandler(this.saveToolStripMenuItem_Click);
             // 
@@ -109,46 +109,46 @@
             this.compileToolStripMenuItem,
             this.simulateToolStripMenuItem});
             this.runToolStripMenuItem.Name = "runToolStripMenuItem";
-            this.runToolStripMenuItem.Size = new System.Drawing.Size(59, 29);
+            this.runToolStripMenuItem.Size = new System.Drawing.Size(48, 24);
             this.runToolStripMenuItem.Text = "Run";
             // 
             // compileToolStripMenuItem
             // 
             this.compileToolStripMenuItem.Name = "compileToolStripMenuItem";
-            this.compileToolStripMenuItem.Size = new System.Drawing.Size(182, 34);
+            this.compileToolStripMenuItem.Size = new System.Drawing.Size(150, 26);
             this.compileToolStripMenuItem.Text = "Compile";
             this.compileToolStripMenuItem.Click += new System.EventHandler(this.compileToolStripMenuItem_Click);
             // 
             // simulateToolStripMenuItem
             // 
             this.simulateToolStripMenuItem.Name = "simulateToolStripMenuItem";
-            this.simulateToolStripMenuItem.Size = new System.Drawing.Size(182, 34);
+            this.simulateToolStripMenuItem.Size = new System.Drawing.Size(150, 26);
             this.simulateToolStripMenuItem.Text = "Simulate";
             this.simulateToolStripMenuItem.Click += new System.EventHandler(this.simulateToolStripMenuItem_Click);
             // 
             // logTextBox
             // 
-            this.logTextBox.Location = new System.Drawing.Point(12, 451);
+            this.logTextBox.Location = new System.Drawing.Point(11, 361);
+            this.logTextBox.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.logTextBox.Name = "logTextBox";
             this.logTextBox.ReadOnly = true;
-            this.logTextBox.Size = new System.Drawing.Size(776, 26);
+            this.logTextBox.Size = new System.Drawing.Size(690, 22);
             this.logTextBox.TabIndex = 2;
             // 
             // CompilerForm
             // 
-            this.AutoScaleDimensions = new System.Drawing.SizeF(9F, 20F);
+            this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(856, 505);
+            this.ClientSize = new System.Drawing.Size(761, 404);
             this.Controls.Add(this.logTextBox);
             this.Controls.Add(this.codeTextBox);
             this.Controls.Add(this.menuStrip1);
             this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.MainMenuStrip = this.menuStrip1;
+            this.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.Name = "CompilerForm";
             this.Text = "Compiler";
             this.TopMost = true;
-            this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.CompilerForm_FormClosing);
-            this.FormClosed += new System.Windows.Forms.FormClosedEventHandler(this.CompilerForm_FormClosed);
             this.Load += new System.EventHandler(this.Form1_Load);
             this.SizeChanged += new System.EventHandler(this.Form1_ResizeBegin);
             this.menuStrip1.ResumeLayout(false);

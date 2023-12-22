@@ -7,18 +7,22 @@ namespace TuringMachineSimulator
 {
     internal class Parser
     {
-        private List<KEYWORD> tokens;
-        private List<string> values;
-        Lexer lexer;
-
         private int tokenCount;
-
-        private SymbolNode _globalSymbols;
+        private SymbolNode globalSymbols;
+        private readonly Lexer lexer;
+        private List<TokenType> tokens;
+        private List<string> values;
 
         public SymbolNode GlobalSymbols
         {
-            get { return _globalSymbols; }
-            set { _globalSymbols = value; }
+            get 
+            { 
+                return globalSymbols; 
+            }
+            set 
+            { 
+                globalSymbols = value; 
+            }
         }
 
         public Parser()
@@ -26,7 +30,7 @@ namespace TuringMachineSimulator
             this.lexer = new Lexer();
         }
 
-        private KEYWORD GetOffsetToken(int offset)
+        private TokenType GetOffsetToken(int offset)
         {
             if ((this.tokenCount + offset < this.tokens.Count) && (this.tokenCount + offset >= 0))
             {
@@ -61,16 +65,15 @@ namespace TuringMachineSimulator
             }
             while (state);
 
-            this.tokens.Add(KEYWORD.END);
+            this.tokens.Add(TokenType.End);
             this.values.Add("");
         }
 
         public void SetStream(string stream)
         {
-            // Initialize the corresponding fields
-            this.tokens = new List<KEYWORD>();
+            this.tokens = new List<TokenType>();
             this.values = new List<string>();
-            this.GlobalSymbols = new SymbolNode(TYPE.SYMBOL_LIST);
+            this.GlobalSymbols = new SymbolNode(NodeType.SymbolList);
             this.tokenCount = 0;
 
             this.lexer.SetStream(stream);
@@ -93,10 +96,10 @@ namespace TuringMachineSimulator
             this.NextToken();
 
             MainNode node = ParseMainStatement();
-            node.root = null;
+            node.Root = null;
             this.NextToken();
 
-            if (this.GetOffsetToken(0) != KEYWORD.END)
+            if (this.GetOffsetToken(0) != TokenType.End)
             {
                 throw new SyntaxErrorException("Invalid syntax");
             }
@@ -105,11 +108,11 @@ namespace TuringMachineSimulator
         }
         private SymbolNode ParseSymbolsStatement()
         {
-            SymbolNode node = new SymbolNode(TYPE.SYMBOL_LIST);
+            SymbolNode node = new SymbolNode(NodeType.SymbolList);
             bool isGlobal;
             bool hasNot;
 
-            if (this.GlobalSymbols.symbols.Length == 0)
+            if (this.GlobalSymbols.Symbols.Length == 0)
             {
                 isGlobal = true;
             }
@@ -118,7 +121,7 @@ namespace TuringMachineSimulator
                 isGlobal = false;
             }
 
-            if (this.GetOffsetToken(1) == KEYWORD.NOT)
+            if (this.GetOffsetToken(1) == TokenType.Not)
             {
                 this.NextToken();
 
@@ -135,7 +138,7 @@ namespace TuringMachineSimulator
 
             this.NextToken();
 
-            if (this.GetOffsetToken(0) != KEYWORD.L_PAR)
+            if (this.GetOffsetToken(0) != TokenType.LeftParenthesis)
             {
                 throw new SyntaxErrorException($"Expected left parenthesis in {GetCurrentTokenPosition()}.");
             }
@@ -147,9 +150,9 @@ namespace TuringMachineSimulator
             {
                 this.NextToken();
 
-                if (this.GetOffsetToken(0) == KEYWORD.R_PAR)
+                if (this.GetOffsetToken(0) == TokenType.RightParenthesis)
                 {
-                    if (this.GetOffsetToken(-1) == KEYWORD.L_PAR)
+                    if (this.GetOffsetToken(-1) == TokenType.LeftParenthesis)
                     {
                         throw new SyntaxErrorException($"Empty parenthesis statement in {GetCurrentTokenPosition()}.");
                     }
@@ -157,32 +160,32 @@ namespace TuringMachineSimulator
                 }
 
 
-                if ((this.GetOffsetToken(0) != KEYWORD.SYMBOL) && (!firsWasSymbol))
+                if ((this.GetOffsetToken(0) != TokenType.Symbol) && (!firsWasSymbol))
                 {
                     throw new SyntaxErrorException($"Expected symbol before comma in {GetCurrentTokenPosition()}.");
                 }
 
                 firsWasSymbol = true;
 
-                if (this.GetOffsetToken(0) == KEYWORD.SYMBOL)
+                if (this.GetOffsetToken(0) == TokenType.Symbol)
                 {
-                    if (node.symbols.Contains(this.offsetTokenValue(0)))
+                    if (node.Symbols.Contains(this.offsetTokenValue(0)))
                     {
                         throw new SyntaxErrorException($"Symbol {this.offsetTokenValue(0)} is already given in {GetCurrentTokenPosition()}.");
                     }
 
                     if (!isGlobal)
                     {
-                        if (!this.GlobalSymbols.symbols.Contains(this.offsetTokenValue(0)))
+                        if (!this.GlobalSymbols.Symbols.Contains(this.offsetTokenValue(0)))
                         {
                             throw new SyntaxErrorException($"The symbol {this.offsetTokenValue(0)} is not given in main symbols in {GetCurrentTokenPosition()}.");
                         }
                     }
 
-                    node.symbols = node.symbols + this.offsetTokenValue(0);
+                    node.Symbols = node.Symbols + this.offsetTokenValue(0);
                     lastWasComma = false;
                 }
-                else if (this.GetOffsetToken(0) == KEYWORD.COMMA)
+                else if (this.GetOffsetToken(0) == TokenType.Comma)
                 {
                     lastWasComma = true;
                     continue;
@@ -198,7 +201,7 @@ namespace TuringMachineSimulator
                 throw new SyntaxErrorException($"Expected symbol after comma in {GetCurrentTokenPosition()}.");
             }
 
-            node.hasNot = hasNot;
+            node.HasNot = hasNot;
 
             return node;
         }
@@ -207,14 +210,14 @@ namespace TuringMachineSimulator
         {
             this.NextToken();
 
-            if (this.GetOffsetToken(0) != KEYWORD.GLOBAL_SYMBOLS)
+            if (this.GetOffsetToken(0) != TokenType.GlobalSymbols)
             {
                 throw new SyntaxErrorException("Global symbols are not given.");
             }
 
             SymbolNode node = ParseSymbolsStatement();
 
-            if (!node.symbols.Contains("_"))
+            if (!node.Symbols.Contains("_"))
             {
                 throw new SyntaxErrorException("Global symbols should contain empty '_' symbol.");
             }
@@ -224,210 +227,181 @@ namespace TuringMachineSimulator
 
         private MainNode ParseMainStatement()
         {
-            var tmp = this.GetOffsetToken(0);
-            if (this.GetOffsetToken(0) != KEYWORD.MAIN)
+            if (this.GetOffsetToken(0) != TokenType.Main)
             {
                 throw new SyntaxErrorException("Expected a statement.");
             }
 
             this.NextToken();
 
-            if ((this.GetOffsetToken(0) != KEYWORD.L_PAR) || (this.GetOffsetToken(1) != KEYWORD.R_PAR))
+            if ((this.GetOffsetToken(0) != TokenType.LeftParenthesis) || (this.GetOffsetToken(1) != TokenType.RightParenthesis))
             {
                 throw new SyntaxErrorException($"Incorrect statement in {GetCurrentTokenPosition()}.");
             }
 
             this.NextToken();
             MainNode node = new MainNode();
-            node.symbols = this.GlobalSymbols;
+            node.Symbols = this.GlobalSymbols;
 
             this.NextToken();
 
-            if (this.GetOffsetToken(0) != KEYWORD.L_BR)
+            if (this.GetOffsetToken(0) != TokenType.LeftBrace)
             {
                 throw new SyntaxErrorException("Main statement should only contain block statement.");
             }
 
-            node.statement = ParseStatement(node);
+            node.Statement = ParseStatement(node);
             return node;
         }
 
         private Node ParseStatement(Node root)
         {
 
-            if (this.GetOffsetToken(0) == KEYWORD.IF)
+            if (this.GetOffsetToken(0) == TokenType.If)
             {
                 return ParseIfStatement(root);
             }
-            else
-            if (this.GetOffsetToken(0) == KEYWORD.WHILE)
+            if (this.GetOffsetToken(0) == TokenType.While)
             {
                 return ParseWhileStatement(root);
             }
-            else
-            if (this.GetOffsetToken(0) == KEYWORD.DO)
+            if (this.GetOffsetToken(0) == TokenType.Do)
             {
                 return ParseDoWhileStatement(root);
             }
-            else
-            if (this.GetOffsetToken(0) == KEYWORD.REPEAT)
+            if (this.GetOffsetToken(0) == TokenType.Repeat)
             {
                 return ParseRepeatUntilStatement(root);
             }
-            else
-            if (this.GetOffsetToken(0) == KEYWORD.L_BR)
+            if (this.GetOffsetToken(0) == TokenType.LeftBrace)
             {
                 return ParseBlockStatement(root);
             }
-            else
-            if (this.GetOffsetToken(0) == KEYWORD.LEFT)
+            if (this.GetOffsetToken(0) == TokenType.Left)
             {
                 return ParseLeftStatement(root);
             }
-            else
-            if (this.GetOffsetToken(0) == KEYWORD.RIGHT)
+            if (this.GetOffsetToken(0) == TokenType.Right)
             {
                 return ParseRightStatement(root);
             }
-            else
-            if (this.GetOffsetToken(0) == KEYWORD.EXIT)
+            if (this.GetOffsetToken(0) == TokenType.Exit)
             {
                 return ParseExitStatement(root);
             }
-            else
-            if (this.GetOffsetToken(0) == KEYWORD.ERROR)
+            if (this.GetOffsetToken(0) == TokenType.Error)
             {
                 return ParseErrorStatement(root);
             }
-            else
-            if (this.GetOffsetToken(0) == KEYWORD.WRITE)
+            if (this.GetOffsetToken(0) == TokenType.Write)
             {
                 return ParseWriteStatement(root);
             }
-            else
-            if (this.GetOffsetToken(0) == KEYWORD.CONTINUE)
+            if (this.GetOffsetToken(0) == TokenType.Continue)
             {
                 return ParseContinueStatement(root);
             }
-            else
-            if (this.GetOffsetToken(0) == KEYWORD.BREAK)
+            if (this.GetOffsetToken(0) == TokenType.Break)
             {
                 return ParseBreakStatement(root);
             }
-            else
-            if (this.GetOffsetToken(0) == KEYWORD.SWITCH)
+            if (this.GetOffsetToken(0) == TokenType.Switch)
             {
                 return ParseSwitchStatement(root);
             }
-            else
-            if (this.GetOffsetToken(0) == KEYWORD.CASE)
+            if (this.GetOffsetToken(0) == TokenType.Case)
             {
                 throw new SyntaxErrorException($"Case statement should only be in switch statement in {GetCurrentTokenPosition()}.");
             }
-            else
-            if (this.GetOffsetToken(0) == KEYWORD.DEFAULT)
+            if (this.GetOffsetToken(0) == TokenType.Default)
             {
                 throw new SyntaxErrorException($"Default statement should only be in switch statement in {GetCurrentTokenPosition()}.");
             }
-            else
-            if (this.GetOffsetToken(0) == KEYWORD.SEMICOLON)
+            if (this.GetOffsetToken(0) == TokenType.Semicolon)
             {
                 throw new SyntaxErrorException($"Semicolon should follow by an primary statement in {GetCurrentTokenPosition()}.");
             }
-            else
-            if (this.GetOffsetToken(0) == KEYWORD.R_BR)
+            if (this.GetOffsetToken(0) == TokenType.RightBrace)
             {
                 throw new SyntaxErrorException($"Empty single statement in {GetCurrentTokenPosition()}.");
             }
-            else
-            if (this.GetOffsetToken(0) == KEYWORD.ELSE)
+            if (this.GetOffsetToken(0) == TokenType.Else)
             {
                 throw new SyntaxErrorException($"Else statement should only be followed by an if statement in  in {GetCurrentTokenPosition()}.");
             }
-            else
-            if (this.GetOffsetToken(0) == KEYWORD.END)
+            if (this.GetOffsetToken(0) == TokenType.End)
             {
                 throw new SyntaxErrorException("Expected statement");
             }
-            else
-            if (this.GetOffsetToken(0) == KEYWORD.MAIN)
+            if (this.GetOffsetToken(0) == TokenType.Main)
             {
                 throw new SyntaxErrorException($"Main statement should occur only once, {GetCurrentTokenPosition()}.");
             }
-            else
-            {
-                throw new SyntaxErrorException($"Unknow statement {this.GetOffsetToken(0)} in {GetCurrentTokenPosition()}.");
-            }
+
+            throw new SyntaxErrorException($"Unknow statement {this.GetOffsetToken(0)} in {GetCurrentTokenPosition()}.");
 
         }
 
         private Node ParseIfStatement(Node root)
         {
-            Node node0 = null;
-            Node node1 = null;
-
             IfNode firstNode = new IfNode();
-            firstNode.root = root;
+            firstNode.Root = root;
 
             SymbolNode symbolNode = ParseSymbolsStatement();
             this.NextToken();
 
-            node0 = ParseStatement(firstNode);
+            Node node0 = ParseStatement(firstNode);
 
-            if (this.GetOffsetToken(1) == KEYWORD.ELSE)
+            if (this.GetOffsetToken(1) == TokenType.Else)
             {
                 this.NextToken();
                 this.NextToken();
 
-                firstNode.statement = null;
+                firstNode.Statement = null;
 
                 IfElseNode node = new IfElseNode();
-                node.root = root;
+                node.Root = root;
 
-                node1 = ParseStatement(node);
-                node0.root = node;
+                Node node1 = ParseStatement(node);
+                node0.Root = node;
 
-                node.ifStatement = node0;
-                node.elseStatement = node1;
-                node.symbols = symbolNode;
+                node.IfStatement = node0;
+                node.ElseStatement = node1;
+                node.Symbols = symbolNode;
 
                 return node;
             }
 
-            firstNode.statement = node0;
-            firstNode.symbols = symbolNode;
+            firstNode.Statement = node0;
+            firstNode.Symbols = symbolNode;
             return firstNode;
         }
 
         private Node ParseWhileStatement(Node root)
         {
-            Node node0 = null;
-
             WhileNode node = new WhileNode();
-            node.root = root;
+            node.Root = root;
             SymbolNode symbolNode = ParseSymbolsStatement();
 
             this.NextToken();
 
-            node0 = ParseStatement(node);
-
-            node.statement = node0;
-            node.symbols = symbolNode;
+            Node node0 = ParseStatement(node);
+            node.Statement = node0;
+            node.Symbols = symbolNode;
             return node;
         }
 
         private Node ParseDoWhileStatement(Node root)
         {
-            Node node0 = null;
             DoWhileNode node = new DoWhileNode();
-            node.root = root;
+            node.Root = root;
             this.NextToken();
 
-            node0 = ParseStatement(node);
+            Node node0 = ParseStatement(node);
 
             this.NextToken();
 
-            if (this.GetOffsetToken(0) != KEYWORD.WHILE)
+            if (this.GetOffsetToken(0) != TokenType.While)
             {
                 throw new SyntaxErrorException($"Incorrect Do while statement in {GetCurrentTokenPosition()}.");
             }
@@ -436,28 +410,26 @@ namespace TuringMachineSimulator
 
             this.NextToken();
 
-            if (this.GetOffsetToken(0) != KEYWORD.SEMICOLON)
+            if (this.GetOffsetToken(0) != TokenType.Semicolon)
             {
                 throw new SyntaxErrorException($"Expected semicolon in {GetCurrentTokenPosition()}.");
             }
 
-            node.statement = node0;
-            node.symbols = symbolNode;
+            node.Statement = node0;
+            node.Symbols = symbolNode;
             return node;
 
         }
         private Node ParseRepeatUntilStatement(Node root)
         {
-            Node node0 = null;
-
             RepeatUntilNode node = new RepeatUntilNode();
-            node.root = root;
+            node.Root = root;
             this.NextToken();
 
-            node0 = ParseStatement(node);
+            Node node0 = ParseStatement(node);
             this.NextToken();
 
-            if (this.GetOffsetToken(0) != KEYWORD.UNTIL)
+            if (this.GetOffsetToken(0) != TokenType.Until)
             {
                 throw new SyntaxErrorException($"Incorrect Repeat/Until statement in {GetCurrentTokenPosition()}.");
             }
@@ -466,45 +438,43 @@ namespace TuringMachineSimulator
 
             this.NextToken();
 
-            if (this.GetOffsetToken(0) != KEYWORD.SEMICOLON)
+            if (this.GetOffsetToken(0) != TokenType.Semicolon)
             {
                 throw new SyntaxErrorException($"Expected semicolon in {GetCurrentTokenPosition()}");
             }
 
-            node.statement = node0;
-            node.symbols = symbolNode;
+            node.Statement = node0;
+            node.Symbols = symbolNode;
             return node;
         }
 
         private Node ParseBlockStatement(Node root)
         {
-            Node node0 = null;
-
             BlockNode node = new BlockNode();
-            node.root = root;
+            node.Root = root;
 
             this.NextToken();
 
-            if (this.GetOffsetToken(0) == KEYWORD.R_BR)
+            if (this.GetOffsetToken(0) == TokenType.RightBrace)
             {
                 throw new SyntaxErrorException($"Empty block statement in {GetCurrentTokenPosition()}.");
             }
 
-            while (this.GetOffsetToken(0) != KEYWORD.R_BR)
+            while (this.GetOffsetToken(0) != TokenType.RightBrace)
             {
-                node0 = ParseStatement(node);
-                node.statements.Add(node0);
+                Node node0 = ParseStatement(node);
+                node.Statements.Add(node0);
                 this.NextToken();
             }
 
-            if ((node as BlockNode).root.type == TYPE.MAIN)
+            if ((node as BlockNode).Root.Type == NodeType.Main)
             {
-                int j = (node as BlockNode).statements.Count - 1;
+                int j = (node as BlockNode).Statements.Count - 1;
 
-                if (((node as BlockNode).statements[j].type != TYPE.EXIT) &&
-                ((node as BlockNode).statements[j].type != TYPE.ERROR))
+                if (((node as BlockNode).Statements[j].Type != NodeType.Exit) &&
+                ((node as BlockNode).Statements[j].Type != NodeType.Error))
                 {
-                    node.statements.Add(new PrimaryNode(TYPE.EXIT));
+                    node.Statements.Add(new PrimaryNode(NodeType.Exit));
                 }
             }
             return node;
@@ -515,65 +485,65 @@ namespace TuringMachineSimulator
         {
             this.NextToken();
 
-            if (this.GetOffsetToken(0) != KEYWORD.SEMICOLON)
+            if (this.GetOffsetToken(0) != TokenType.Semicolon)
             {
                 throw new SyntaxErrorException($"Expected semicolon in {GetCurrentTokenPosition()}.");
             }
 
-            return new PrimaryNode(TYPE.LEFT);
+            return new PrimaryNode(NodeType.Left);
         }
 
         private Node ParseRightStatement(Node root)
         {
             this.NextToken();
 
-            if (this.GetOffsetToken(0) != KEYWORD.SEMICOLON)
+            if (this.GetOffsetToken(0) != TokenType.Semicolon)
             {
                 throw new SyntaxErrorException($"Expected semicolon in {GetCurrentTokenPosition()}.");
             }
 
-            return new PrimaryNode(TYPE.RIGHT);
+            return new PrimaryNode(NodeType.Right);
         }
 
         private Node ParseExitStatement(Node root)
         {
             this.NextToken();
 
-            if (this.GetOffsetToken(0) != KEYWORD.SEMICOLON)
+            if (this.GetOffsetToken(0) != TokenType.Semicolon)
             {
                 throw new SyntaxErrorException($"Expected semicolon in {GetCurrentTokenPosition()}.");
             }
 
-            return new PrimaryNode(TYPE.EXIT);
+            return new PrimaryNode(NodeType.Exit);
         }
 
         private Node ParseErrorStatement(Node root)
         {
             this.NextToken();
 
-            if (this.GetOffsetToken(0) != KEYWORD.SEMICOLON)
+            if (this.GetOffsetToken(0) != TokenType.Semicolon)
             {
                 throw new SyntaxErrorException($"Expected semicolon in {GetCurrentTokenPosition()}.");
             }
 
-            return new PrimaryNode(TYPE.ERROR);
+            return new PrimaryNode(NodeType.Error);
         }
 
         private Node ParseWriteStatement(Node root)
         {
             SymbolNode symbolNode = ParseSymbolsStatement();
 
-            if (symbolNode.symbols.Length > 1)
+            if (symbolNode.Symbols.Length > 1)
             {
                 throw new SyntaxErrorException($"Expected only one symbol in write statement in {GetCurrentTokenPosition()}.");
             }
 
             WriteNode node = new WriteNode();
-            node.symbol = symbolNode.symbols[0];
+            node.Symbol = symbolNode.Symbols[0];
 
             this.NextToken();
 
-            if (this.GetOffsetToken(0) != KEYWORD.SEMICOLON)
+            if (this.GetOffsetToken(0) != TokenType.Semicolon)
             {
                 throw new SyntaxErrorException($"Expected semicolon in {GetCurrentTokenPosition()}.");
             }
@@ -582,42 +552,42 @@ namespace TuringMachineSimulator
 
         }
 
-        private bool IsinLoop(Node node)
+        private bool IsInLoop(Node node)
         {
             Node it = node;
 
             while (
-                (it.root.type != TYPE.WHILE) &&
-                (it.root.type != TYPE.DO_WHILE) &&
-                (it.root.type != TYPE.REPEAT_UNTIL) &&
-                (it.root.type != TYPE.MAIN)
+                (it.Root.Type != NodeType.While) &&
+                (it.Root.Type != NodeType.DoWhile) &&
+                (it.Root.Type != NodeType.RepeatUntil) &&
+                (it.Root.Type != NodeType.Main)
                 )
             {
-                it = it.root;
+                it = it.Root;
             }
 
-            if (it.root.type == TYPE.MAIN)
+            if (it.Root.Type == NodeType.Main)
             {
                 return false;
             }
 
-            (node as FlowControllNode).ownerLoop = it.root;
+            (node as FlowControllNode).OwnerLoop = it.Root;
             return true;
         }
         private Node ParseContinueStatement(Node root)
         {
             this.NextToken();
 
-            if (this.GetOffsetToken(0) != KEYWORD.SEMICOLON)
+            if (this.GetOffsetToken(0) != TokenType.Semicolon)
             {
                 throw new SyntaxErrorException($"Expected semicolon in {GetCurrentTokenPosition()}.");
 
             }
 
-            FlowControllNode node = new FlowControllNode(TYPE.CONTINUE);
-            node.root = root;
+            FlowControllNode node = new FlowControllNode(NodeType.Continue);
+            node.Root = root;
 
-            if (!IsinLoop(node))
+            if (!IsInLoop(node))
             {
                 throw new SyntaxErrorException("Flow control statement continue should only be within a loop");
             }
@@ -629,16 +599,16 @@ namespace TuringMachineSimulator
         {
             this.NextToken();
 
-            if (this.GetOffsetToken(0) != KEYWORD.SEMICOLON)
+            if (this.GetOffsetToken(0) != TokenType.Semicolon)
             {
                 throw new SyntaxErrorException($"Expected semicolon in {GetCurrentTokenPosition()}.");
 
             }
 
-            FlowControllNode node = new FlowControllNode(TYPE.BREAK);
-            node.root = root;
+            FlowControllNode node = new FlowControllNode(NodeType.Break);
+            node.Root = root;
 
-            if (!IsinLoop(node))
+            if (!IsInLoop(node))
             {
                 throw new SyntaxErrorException($"Flow control statement continue should only be within a loop, {GetCurrentTokenPosition()}.");
             }
@@ -648,12 +618,10 @@ namespace TuringMachineSimulator
 
         private Node ParseSwitchStatement(Node root)
         {
-            Node node0 = null;
-
             this.NextToken();
 
-            if ((this.GetOffsetToken(0) != KEYWORD.L_PAR) ||
-                (this.GetOffsetToken(1) != KEYWORD.R_PAR))
+            if ((this.GetOffsetToken(0) != TokenType.LeftParenthesis) ||
+                (this.GetOffsetToken(1) != TokenType.RightParenthesis))
             {
                 throw new SyntaxErrorException($"Incorrect statement in {GetCurrentTokenPosition()}");
             }
@@ -661,7 +629,7 @@ namespace TuringMachineSimulator
             this.NextToken();
             this.NextToken();
 
-            if (this.GetOffsetToken(0) != KEYWORD.L_BR)
+            if (this.GetOffsetToken(0) != TokenType.LeftBrace)
             {
                 throw new SyntaxErrorException($"Switch statement should only contain block statement, {GetCurrentTokenPosition()}.");
             }
@@ -669,12 +637,13 @@ namespace TuringMachineSimulator
             this.NextToken();
 
             SwitchNode node = new SwitchNode();
-            node.root = root;
+            node.Root = root;
 
-            while (this.GetOffsetToken(0) != KEYWORD.R_BR)
+            while (this.GetOffsetToken(0) != TokenType.RightBrace)
             {
-                if ((this.GetOffsetToken(0) == KEYWORD.CASE) ||
-                    (this.GetOffsetToken(0) == KEYWORD.DEFAULT))
+                Node node0;
+                if ((this.GetOffsetToken(0) == TokenType.Case) ||
+                        (this.GetOffsetToken(0) == TokenType.Default))
                 {
                     node0 = ParseCaseAndDefaultStatements(node);
                 }
@@ -683,27 +652,27 @@ namespace TuringMachineSimulator
                     throw new SyntaxErrorException($"Only case statements and default statement are allowed in switch statement, {GetCurrentTokenPosition()}.");
                 }
 
-                char potentialKey = (node0 as CaseNode).symbol;
+                char potentialKey = (node0 as CaseNode).Symbol;
 
-                if (node.branches.ContainsKey(potentialKey))
+                if (node.Branches.ContainsKey(potentialKey))
                 {
                     throw new SyntaxErrorException($"Duplicated value {potentialKey} in switch statement in {GetCurrentTokenPosition()}.");
                 }
 
-                node.branches[potentialKey] = node0;
+                node.Branches[potentialKey] = node0;
 
-                if (node0.type == TYPE.DEFAULT)
+                if (node0.Type == NodeType.Default)
                 {
-                    if (node.hasDefault)
+                    if (node.HasDefault)
                     {
                         throw new SyntaxErrorException($"Multiple default labels in one switch statement in {GetCurrentTokenPosition()}.");
                     }
 
-                    node.hasDefault = true;
-                    node.defaultNode = node0;
+                    node.HasDefault = true;
+                    node.DefaultNode = node0;
                 }
 
-                node.cases.Add(node0);
+                node.Cases.Add(node0);
 
                 this.NextToken();
             }
@@ -713,16 +682,14 @@ namespace TuringMachineSimulator
 
         private Node ParseCaseAndDefaultStatements(Node root)
         {
-            Node node0 = null;
-
-            if (this.GetOffsetToken(0) == KEYWORD.DEFAULT)
+            if (this.GetOffsetToken(0) == TokenType.Default)
             {
                 return ParseDefaultStatement(root);
             }
 
             SymbolNode symbolNode = ParseSymbolsStatement();
 
-            if (symbolNode.symbols.Length > 1)
+            if (symbolNode.Symbols.Length > 1)
             {
                 throw new SyntaxErrorException($"Expected only one symbol in case statement in {GetCurrentTokenPosition()}.");
             }
@@ -730,14 +697,14 @@ namespace TuringMachineSimulator
             this.NextToken();
 
             CaseNode node = new CaseNode();
-            node.root = root;
+            node.Root = root;
 
-            node.symbol = symbolNode.symbols[0];
+            node.Symbol = symbolNode.Symbols[0];
 
             this.NextToken();
 
-            node0 = ParseStatement(node);
-            node.statement = node0;
+            Node node0 = ParseStatement(node);
+            node.Statement = node0;
 
             return node;
 
@@ -745,11 +712,9 @@ namespace TuringMachineSimulator
 
         private Node ParseDefaultStatement(Node root)
         {
-            Node node0 = null;
-
             this.NextToken();
 
-            if (this.GetOffsetToken(0) != KEYWORD.COLON)
+            if (this.GetOffsetToken(0) != TokenType.Colon)
             {
                 throw new SyntaxErrorException($"Expected colon after default statement in {GetCurrentTokenPosition()}.");
             }
@@ -757,14 +722,12 @@ namespace TuringMachineSimulator
             this.NextToken();
 
             DefaultNode node = new DefaultNode();
-            node.root = root;
+            node.Root = root;
 
-            node0 = ParseStatement(node);
-            node.statement = node0;
+            Node node0 = ParseStatement(node);
+            node.Statement = node0;
 
             return node;
-
-
         }
 
     }

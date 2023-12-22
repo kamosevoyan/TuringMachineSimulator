@@ -10,12 +10,18 @@ namespace TuringMachineSimulator
     {
         private int globalWidth;
         private int globalHeight;
-        private SimulatorForm simulatorForm;
+        private string compiledSource;
+        private readonly SimulatorForm simulatorForm;
+        private readonly Compiler compiler;
 
         public Simulator simulator;
-        Compiler compiler;
-
-        string compiledSource;
+        public string GlobalSymbols
+        {
+            get
+            {
+                return this.compiler.GetGlobalSymbols;
+            }
+        }
 
         public CompilerForm()
         {
@@ -29,17 +35,13 @@ namespace TuringMachineSimulator
             this.Width = globalWidth * 4 / 5;
             this.Height = globalHeight * 3 / 4;
 
-            int relativeHeight = globalHeight * 10 / 10;
-            int relativeWidth = globalWidth * 10 / 10;
+            int relativeHeight = globalHeight;
+            int relativeWidth = globalWidth;
 
             this.codeTextBox.Size = new System.Drawing.Size(relativeWidth, relativeHeight);
-
             this.compiler = new Compiler();
-
             this.simulatorForm = new SimulatorForm(this);
-
             this.simulator = new Simulator();
-
             this.simulateToolStripMenuItem.Enabled = false;
         }
 
@@ -48,10 +50,10 @@ namespace TuringMachineSimulator
             string layout = simulator.GetLayout();
             this.setTape(layout);
         }
-        public bool StepSimulator(bool visualize)
+        public Simulator.MachineState StepSimulator(bool visualize)
         {
 
-            bool result = simulator.Step();
+            Simulator.MachineState result = simulator.Step();
             if (visualize)
             {
                 VisualizeResult();
@@ -192,16 +194,7 @@ namespace TuringMachineSimulator
                 sw.Close();
             }
         }
-
-        private void CompilerForm_FormClosing(object sender, FormClosingEventArgs e)
-        {
-
-        }
-
-        private void CompilerForm_FormClosed(object sender, FormClosedEventArgs e)
-        {
-          
-        }
+        
     }
 }
 

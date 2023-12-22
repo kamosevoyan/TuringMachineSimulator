@@ -6,7 +6,14 @@ namespace TuringMachineSimulator
 {
     internal class Compiler
     {
-        private Parser parser;
+        private readonly Parser parser;
+        private string globalSymbols;
+
+        public string GetGlobalSymbols
+        {
+            get { return globalSymbols; }
+        }
+            
 
         public Compiler()
         {
@@ -17,7 +24,9 @@ namespace TuringMachineSimulator
         {
             MainNode node = this.parser.Parse();
 
-            string symbols = this.parser.GlobalSymbols.symbols;
+            string symbols = this.parser.GlobalSymbols.Symbols;
+            this.globalSymbols = symbols;
+
             List<string> lines = new List<string>();
 
             string temp = "";
@@ -53,93 +62,93 @@ namespace TuringMachineSimulator
 
         private void CompileNode(Node node, List<string> lines, ref int stateNumber, string globalSymbols)
         {
-            switch (node.type)
+            switch (node.Type)
             {
-                case TYPE.LEFT:
+                case NodeType.Left:
                     {
                         CompileLeftNode(node, lines, ref stateNumber, globalSymbols);
                         break;
                     }
 
-                case TYPE.RIGHT:
+                case NodeType.Right:
                     {
                         CompileRightNode(node, lines, ref stateNumber, globalSymbols);
                         break;
                     }
 
-                case TYPE.EXIT:
+                case NodeType.Exit:
                     {
                         CompileExitNode(node, lines, ref stateNumber, globalSymbols);
                         break;
                     }
 
-                case TYPE.ERROR:
+                case NodeType.Error:
                     {
                         CompileErrorNode(node, lines, ref stateNumber, globalSymbols);
                         break;
                     }
 
-                case TYPE.CONTINUE:
+                case NodeType.Continue:
                     {
                         CompileContinueNode(node, lines, ref stateNumber, globalSymbols);
                         break;
                     }
 
-                case TYPE.BREAK:
+                case NodeType.Break:
                     {
                         CompileBreakNode(node, lines, ref stateNumber, globalSymbols);
                         break;
                     }
 
-                case TYPE.WRITE:
+                case NodeType.Write:
                     {
                         CompileWriteNode(node, lines, ref stateNumber, globalSymbols);
                         break;
                     }
 
-                case TYPE.MAIN:
+                case NodeType.Main:
                     {
                         CompileMainNode(node, lines, ref stateNumber, globalSymbols);
                         break;
                     }
 
-                case TYPE.BLOCK:
+                case NodeType.Block:
                     {
                         CompileBlockNode(node, lines, ref stateNumber, globalSymbols);
                         break;
                     }
 
-                case TYPE.IF:
+                case NodeType.If:
                     {
                         CompileIfNode(node, lines, ref stateNumber, globalSymbols);
                         break;
                     }
 
-                case TYPE.IF_ELSE:
+                case NodeType.IfElse:
                     {
                         CompileIfElseNode(node, lines, ref stateNumber, globalSymbols);
                         break;
                     }
 
-                case TYPE.WHILE:
+                case NodeType.While:
                     {
                         CompileWhileNode(node, lines, ref stateNumber, globalSymbols);
                         break;
                     }
 
-                case TYPE.DO_WHILE:
+                case NodeType.DoWhile:
                     {
                         CompileDoWhileNode(node, lines, ref stateNumber, globalSymbols);
                         break;
                     }
 
-                case TYPE.REPEAT_UNTIL:
+                case NodeType.RepeatUntil:
                     {
                         CompileRepeatUntilNode(node, lines, ref stateNumber, globalSymbols);
                         break;
                     }
 
-                case TYPE.SWITCH:
+                case NodeType.Switch:
                     {
                         CompileSwitchNode(node, lines, ref stateNumber, globalSymbols);
                         break;
@@ -212,7 +221,7 @@ namespace TuringMachineSimulator
             ++stateNumber;
 
             lines.Add("");
-            ((node as FlowControllNode).ownerLoop as LoopNode).continueStates.Add(stateNumber);
+            ((node as FlowControllNode).OwnerLoop as LoopNode).ContinueStates.Add(stateNumber);
         }
 
 
@@ -221,7 +230,7 @@ namespace TuringMachineSimulator
             ++stateNumber;
 
             lines.Add("");
-            ((node as FlowControllNode).ownerLoop as LoopNode).breakStates.Add(stateNumber);
+            ((node as FlowControllNode).OwnerLoop as LoopNode).BreakStates.Add(stateNumber);
         }
 
         private void CompileWriteNode(Node node, List<string> lines, ref int stateNumber, string globalSymbols)
@@ -229,12 +238,12 @@ namespace TuringMachineSimulator
             string temp = "";
             ++stateNumber;
 
-            temp = (node as WriteNode).symbol.ToString();
+            temp = (node as WriteNode).Symbol.ToString();
             temp += ",q" + stateNumber.ToString() + ",@";
 
             for (int i = 1; i < globalSymbols.Length; ++i)
             {
-                temp += "\t|\t" + (node as WriteNode).symbol.ToString() + ",q" + stateNumber.ToString() + ",@";
+                temp += "\t|\t" + (node as WriteNode).Symbol.ToString() + ",q" + stateNumber.ToString() + ",@";
             }
             temp += "\n";
             lines.Add(temp);
@@ -242,15 +251,15 @@ namespace TuringMachineSimulator
 
         private void CompileMainNode(Node node, List<string> lines, ref int stateNumber, string globalSymbols)
         {
-            CompileNode((node as MainNode).statement, lines, ref stateNumber, globalSymbols);
+            CompileNode((node as MainNode).Statement, lines, ref stateNumber, globalSymbols);
         }
 
         private void CompileBlockNode(Node node, List<string> lines, ref int stateNumber, string globalSymbols)
         {
             BlockNode blockNode = node as BlockNode;
-            for (int i = 0; i < blockNode.statements.Count; ++i)
+            for (int i = 0; i < blockNode.Statements.Count; ++i)
             {
-                CompileNode(blockNode.statements[i], lines, ref stateNumber, globalSymbols);
+                CompileNode(blockNode.Statements[i], lines, ref stateNumber, globalSymbols);
             }
         }
         private void CompileIfNode(Node node, List<string> lines, ref int stateNumber, string globalSymbols)
@@ -265,11 +274,11 @@ namespace TuringMachineSimulator
             currentLine = lines.Count - 1;
 
             IfNode ifNode = node as IfNode;
-            bool hasNot = ifNode.symbols.hasNot;
+            bool hasNot = ifNode.Symbols.HasNot;
 
-            CompileNode(ifNode.statement, lines, ref stateNumber, globalSymbols);
+            CompileNode(ifNode.Statement, lines, ref stateNumber, globalSymbols);
 
-            if (hasNot ^ ifNode.symbols.symbols.Contains(globalSymbols[0]))
+            if (hasNot ^ ifNode.Symbols.Symbols.Contains(globalSymbols[0]))
             {
                 temp += globalSymbols.Substring(0, 1) + ",q" + oldStateNumber.ToString() + ",@";
             }
@@ -280,7 +289,7 @@ namespace TuringMachineSimulator
 
             for (int i = 1; i < globalSymbols.Length; ++i)
             {
-                if (hasNot ^ ifNode.symbols.symbols.Contains(globalSymbols[i]))
+                if (hasNot ^ ifNode.Symbols.Symbols.Contains(globalSymbols[i]))
                 {
                     temp += "\t|\t" + globalSymbols.Substring(i, 1) + ",q" + oldStateNumber.ToString() + ",@";
                 }
@@ -307,9 +316,9 @@ namespace TuringMachineSimulator
             currentLine = lines.Count - 1;
 
             IfElseNode ifElseNode = node as IfElseNode;
-            bool hasNot = ifElseNode.symbols.hasNot;
+            bool hasNot = ifElseNode.Symbols.HasNot;
 
-            CompileNode(ifElseNode.ifStatement, lines, ref stateNumber, globalSymbols);
+            CompileNode(ifElseNode.IfStatement, lines, ref stateNumber, globalSymbols);
             lines.Add("");
 
             ++stateNumber;
@@ -317,10 +326,10 @@ namespace TuringMachineSimulator
             int elseOldStateNumber = stateNumber;
             int elseCurrentLine = lines.Count - 1;
 
-            CompileNode(ifElseNode.elseStatement, lines, ref stateNumber, globalSymbols);
+            CompileNode(ifElseNode.ElseStatement, lines, ref stateNumber, globalSymbols);
 
 
-            if (hasNot ^ ifElseNode.symbols.symbols.Contains(globalSymbols[0]))
+            if (hasNot ^ ifElseNode.Symbols.Symbols.Contains(globalSymbols[0]))
             {
                 temp += globalSymbols.Substring(0, 1) + ",q" + oldStateNumber.ToString() + ",@";
             }
@@ -331,7 +340,7 @@ namespace TuringMachineSimulator
 
             for (int i = 1; i < globalSymbols.Length; ++i)
             {
-                if (hasNot ^ ifElseNode.symbols.symbols.Contains(globalSymbols[i]))
+                if (hasNot ^ ifElseNode.Symbols.Symbols.Contains(globalSymbols[i]))
                 {
                     temp += "\t|\t" + globalSymbols.Substring(i, 1) + ",q" + oldStateNumber.ToString() + ",@";
                 }
@@ -372,12 +381,12 @@ namespace TuringMachineSimulator
 
             WhileNode whileNode = node as WhileNode;
 
-            bool hasNot = whileNode.symbols.hasNot;
+            bool hasNot = whileNode.Symbols.HasNot;
 
-            CompileNode(whileNode.statement, lines, ref stateNumber, globalSymbols);
+            CompileNode(whileNode.Statement, lines, ref stateNumber, globalSymbols);
 
 
-            if (hasNot ^ whileNode.symbols.symbols.Contains(globalSymbols[0]))
+            if (hasNot ^ whileNode.Symbols.Symbols.Contains(globalSymbols[0]))
             {
                 temp += globalSymbols.Substring(0, 1) + ",q" + oldStateNumber.ToString() + ",@";
             }
@@ -388,7 +397,7 @@ namespace TuringMachineSimulator
 
             for (int i = 1; i < globalSymbols.Length; ++i)
             {
-                if (hasNot ^ whileNode.symbols.symbols.Contains(globalSymbols[i]))
+                if (hasNot ^ whileNode.Symbols.Symbols.Contains(globalSymbols[i]))
                 {
                     temp += "\t|\t" + globalSymbols.Substring(i, 1) + ",q" + oldStateNumber.ToString() + ",@";
                 }
@@ -416,8 +425,8 @@ namespace TuringMachineSimulator
 
             lines.Add(temp);
 
-            whileNode.continueState = oldStateNumber - 1;
-            whileNode.breakState = stateNumber;
+            whileNode.ContinueState = oldStateNumber - 1;
+            whileNode.BreakState = stateNumber;
 
             PutFlowControls(node, lines, ref stateNumber, globalSymbols);
         }
@@ -430,13 +439,13 @@ namespace TuringMachineSimulator
             oldStateNumber = stateNumber;
             DoWhileNode doWhileNode = node as DoWhileNode;
 
-            bool hasNot = doWhileNode.symbols.hasNot;
+            bool hasNot = doWhileNode.Symbols.HasNot;
 
-            CompileNode(doWhileNode.statement, lines, ref stateNumber, globalSymbols);
+            CompileNode(doWhileNode.Statement, lines, ref stateNumber, globalSymbols);
 
             ++stateNumber;
 
-            if (hasNot ^ doWhileNode.symbols.symbols.Contains(globalSymbols[0]))
+            if (hasNot ^ doWhileNode.Symbols.Symbols.Contains(globalSymbols[0]))
             {
                 temp += globalSymbols.Substring(0, 1) + ",q" + oldStateNumber.ToString() + ",@";
             }
@@ -447,7 +456,7 @@ namespace TuringMachineSimulator
 
             for (int i = 1; i < globalSymbols.Length; ++i)
             {
-                if (hasNot ^ doWhileNode.symbols.symbols.Contains(globalSymbols[i]))
+                if (hasNot ^ doWhileNode.Symbols.Symbols.Contains(globalSymbols[i]))
                 {
                     temp += "\t|\t" + globalSymbols.Substring(i, 1) + ",q" + oldStateNumber.ToString() + ",@";
                 }
@@ -460,8 +469,8 @@ namespace TuringMachineSimulator
             temp += "\n";
             lines.Add(temp);
 
-            doWhileNode.continueState = oldStateNumber;
-            doWhileNode.breakState = stateNumber;
+            doWhileNode.ContinueState = oldStateNumber;
+            doWhileNode.BreakState = stateNumber;
 
             PutFlowControls(node, lines, ref stateNumber, globalSymbols);
         }
@@ -474,13 +483,13 @@ namespace TuringMachineSimulator
             oldStateNumber = stateNumber;
             RepeatUntilNode repeatUntilNode = node as RepeatUntilNode;
 
-            bool hasNot = repeatUntilNode.symbols.hasNot;
+            bool hasNot = repeatUntilNode.Symbols.HasNot;
 
-            CompileNode(repeatUntilNode.statement, lines, ref stateNumber, globalSymbols);
+            CompileNode(repeatUntilNode.Statement, lines, ref stateNumber, globalSymbols);
 
             ++stateNumber;
 
-            if (hasNot ^ repeatUntilNode.symbols.symbols.Contains(globalSymbols[0]))
+            if (hasNot ^ repeatUntilNode.Symbols.Symbols.Contains(globalSymbols[0]))
             {
                 temp += globalSymbols.Substring(0, 1) + ",q" + oldStateNumber.ToString() + ",@";
             }
@@ -491,7 +500,7 @@ namespace TuringMachineSimulator
 
             for (int i = 1; i < globalSymbols.Length; ++i)
             {
-                if (hasNot ^ repeatUntilNode.symbols.symbols.Contains(globalSymbols[i]))
+                if (hasNot ^ repeatUntilNode.Symbols.Symbols.Contains(globalSymbols[i]))
                 {
                     temp += "\t|\t" + globalSymbols.Substring(i, 1) + ",q" + oldStateNumber.ToString() + ",@";
                 }
@@ -504,8 +513,8 @@ namespace TuringMachineSimulator
             temp += "\n";
             lines.Add(temp);
 
-            repeatUntilNode.continueState = oldStateNumber;
-            repeatUntilNode.breakState = stateNumber;
+            repeatUntilNode.ContinueState = oldStateNumber;
+            repeatUntilNode.BreakState = stateNumber;
 
             PutFlowControls(node, lines, ref stateNumber, globalSymbols);
 
@@ -524,17 +533,17 @@ namespace TuringMachineSimulator
 
             List<int> poses = new List<int> { };
 
-            for (int i = 0; i < switchNode.cases.Count; ++i)
+            for (int i = 0; i < switchNode.Cases.Count; ++i)
             {
-                if (switchNode.cases[i].type == TYPE.CASE)
+                if (switchNode.Cases[i].Type == NodeType.Case)
                 {
-                    (switchNode.cases[i] as CaseNode).entryState = stateNumber;
-                    CompileNode((switchNode.cases[i] as CaseNode).statement, lines, ref stateNumber, globalSymbols);
+                    (switchNode.Cases[i] as CaseNode).EntryState = stateNumber;
+                    CompileNode((switchNode.Cases[i] as CaseNode).Statement, lines, ref stateNumber, globalSymbols);
                 }
                 else
                 {
-                    (switchNode.cases[i] as DefaultNode).entryState = stateNumber;
-                    CompileNode((switchNode.cases[i] as DefaultNode).statement, lines, ref stateNumber, globalSymbols);
+                    (switchNode.Cases[i] as DefaultNode).EntryState = stateNumber;
+                    CompileNode((switchNode.Cases[i] as DefaultNode).Statement, lines, ref stateNumber, globalSymbols);
                 }
 
                 ++stateNumber;
@@ -558,15 +567,15 @@ namespace TuringMachineSimulator
 
             temp = "";
 
-            if (switchNode.branches.ContainsKey(globalSymbols[0]))
+            if (switchNode.Branches.ContainsKey(globalSymbols[0]))
             {
-                temp += globalSymbols.Substring(0, 1) + ",q" + (switchNode.branches[globalSymbols[0]] as CaseNode).entryState.ToString() + ",@";
+                temp += globalSymbols.Substring(0, 1) + ",q" + (switchNode.Branches[globalSymbols[0]] as CaseNode).EntryState.ToString() + ",@";
             }
             else
             {
-                if (switchNode.hasDefault)
+                if (switchNode.HasDefault)
                 {
-                    temp += globalSymbols.Substring(0, 1) + ",q" + (switchNode.branches[globalSymbols[0]] as CaseNode).entryState.ToString() + ",@";
+                    temp += globalSymbols.Substring(0, 1) + ",q" + (switchNode.Branches[globalSymbols[0]] as CaseNode).EntryState.ToString() + ",@";
                 }
                 else
                 {
@@ -576,15 +585,15 @@ namespace TuringMachineSimulator
 
             for (int i = 1; i < globalSymbols.Length; ++i)
             {
-                if (switchNode.branches.ContainsKey(globalSymbols[i]))
+                if (switchNode.Branches.ContainsKey(globalSymbols[i]))
                 {
-                    temp += "\t|\t" + globalSymbols.Substring(i, 1) + ",q" + (switchNode.branches[globalSymbols[i]] as CaseNode).entryState.ToString() + ",@";
+                    temp += "\t|\t" + globalSymbols.Substring(i, 1) + ",q" + (switchNode.Branches[globalSymbols[i]] as CaseNode).EntryState.ToString() + ",@";
                 }
                 else
                 {
-                    if (switchNode.hasDefault)
+                    if (switchNode.HasDefault)
                     {
-                        temp += "\t|\t" + globalSymbols.Substring(i, 1) + ",q" + (switchNode.branches[globalSymbols[i]] as CaseNode).entryState.ToString() + ",@";
+                        temp += "\t|\t" + globalSymbols.Substring(i, 1) + ",q" + (switchNode.Branches[globalSymbols[i]] as CaseNode).EntryState.ToString() + ",@";
                     }
                     else
                     {
@@ -604,32 +613,32 @@ namespace TuringMachineSimulator
 
             LoopNode loopNode = node as LoopNode;
 
-            for (int i = 0; i < loopNode.continueStates.Count; ++i)
+            for (int i = 0; i < loopNode.ContinueStates.Count; ++i)
             {
                 temp = "";
 
-                temp += globalSymbols.Substring(0, 1) + ",q" + (loopNode.continueState) + ",@";
+                temp += globalSymbols.Substring(0, 1) + ",q" + (loopNode.ContinueState) + ",@";
 
                 for (int j = 1; j < globalSymbols.Length; ++j)
                 {
-                    temp += "\t|\t" + globalSymbols.Substring(j, 1) + ",q" + (loopNode.continueState).ToString() + ",@";
+                    temp += "\t|\t" + globalSymbols.Substring(j, 1) + ",q" + (loopNode.ContinueState).ToString() + ",@";
                 }
                 temp += "\n";
-                lines[loopNode.continueStates[i] - 1] = temp;
+                lines[loopNode.ContinueStates[i] - 1] = temp;
             }
 
 
-            for (int i = 0; i < loopNode.breakStates.Count; ++i)
+            for (int i = 0; i < loopNode.BreakStates.Count; ++i)
             {
                 temp = "";
 
-                temp += globalSymbols.Substring(0, 1) + ",q" + (loopNode.breakState) + ",@";
+                temp += globalSymbols.Substring(0, 1) + ",q" + (loopNode.BreakState) + ",@";
                 for (int j = 1; j < globalSymbols.Length; ++j)
                 {
-                    temp += "\t|\t" + globalSymbols.Substring(j, 1) + ",q" + (loopNode.breakState) + ",@";
+                    temp += "\t|\t" + globalSymbols.Substring(j, 1) + ",q" + (loopNode.BreakState) + ",@";
                 }
                 temp += "\n";
-                lines[loopNode.breakStates[i] - 1] = temp;
+                lines[loopNode.BreakStates[i] - 1] = temp;
             }
 
         }

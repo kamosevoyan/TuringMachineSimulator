@@ -7,19 +7,19 @@ namespace TuringMachineSimulator
 {
     public class Tape
     {
-        StringBuilder leftSide, rightSide;
-        char emptySymbol;
+        private StringBuilder leftSide, rightSide;
+        private char emptySymbol;
+        private const int extendSize = 16;
+        private const int tapeCount = 16;
 
         public int position;
-        const int extendSize = 16;
-        const int tapeCount = 16;
 
         public Tape()
         {
 
         }
 
-        public void set(string input, char emptySymbol)
+        public void Set(string input, char emptySymbol)
         {
             this.emptySymbol = emptySymbol;
             this.position = 0;
@@ -33,7 +33,7 @@ namespace TuringMachineSimulator
             this.rightSide = new StringBuilder(tempRightSide);
         }
 
-        public string getTapeVisiblePart()
+        public string GetTapeVisiblePart()
         {
             string result = "";
 
@@ -55,12 +55,8 @@ namespace TuringMachineSimulator
             }
             else
             {
-                string leftSidePart = "";
-                string rightSidePart = "";
-
-                leftSidePart = this.leftSide.ToString().Substring(0, Tape.tapeCount / 2 - this.position);
-                rightSidePart = this.rightSide.ToString().Substring(0, Tape.tapeCount / 2 + this.position);
-
+                string leftSidePart = this.leftSide.ToString().Substring(0, Tape.tapeCount / 2 - this.position);
+                string rightSidePart = this.rightSide.ToString().Substring(0, Tape.tapeCount / 2 + this.position);
                 var charArray = leftSidePart.ToCharArray();
                 Array.Reverse(charArray);
                 leftSidePart = new string(charArray);
@@ -71,7 +67,7 @@ namespace TuringMachineSimulator
             return result;
         }
 
-        public char get(int position)
+        public char Get(int position)
         {
             if (position >= 0)
             {
@@ -81,7 +77,7 @@ namespace TuringMachineSimulator
             return this.leftSide[-position - 1];
         }
 
-        public void write(string value)
+        public void Write(string value)
         {
             if (this.position >= 0)
             {
@@ -93,7 +89,7 @@ namespace TuringMachineSimulator
             }
         }
 
-        public void move(string direction)
+        public void Move(string direction)
         {
             int where;
 
@@ -140,6 +136,11 @@ namespace TuringMachineSimulator
     }
     public class Simulator
     {
+        public enum MachineState
+        {
+            Running, Terminated, Failed
+        }
+
         public Tape tape;
         public char emptySymbol;
         string initialState;
@@ -177,7 +178,7 @@ namespace TuringMachineSimulator
                 throw new Exception("Expected non empty string.");
             }
 
-            this.tape.set(input, this.emptySymbol);
+            this.tape.Set(input, this.emptySymbol);
             this.Reset();
         }
 
@@ -275,9 +276,10 @@ namespace TuringMachineSimulator
                         continue;
                     }
 
-                    leftToken = cleanedToken.Split(',')[0];
-                    rightToken = cleanedToken.Split(',')[1];
-                    dirToken = cleanedToken.Split(',')[2];
+                    string[] splitTokens = cleanedToken.Split(',');
+                    leftToken = splitTokens[0];
+                    rightToken = splitTokens[1];
+                    dirToken = splitTokens[2];
 
                     if (!this.alphabetSymbols.Contains(leftToken))
                     {
@@ -374,37 +376,37 @@ namespace TuringMachineSimulator
             }
         }
 
-        public bool Step()
+        public MachineState Step()
         {
-            this.currentSymbol = this.tape.get(this.tape.position);
+            this.currentSymbol = this.tape.Get(this.tape.position);
 
             (string, char) key = (currentState, currentSymbol);
 
             if (!(this.lambda.ContainsKey(key) && this.delta.ContainsKey(key) && this.nyu.ContainsKey(key)))
             {
-                throw new SimulatorErrorException($"Unknown key {key}");
+                return MachineState.Failed;
             }
 
             string newState = this.lambda[key];
             string newSymbol = this.delta[key];
             string move = this.nyu[key];
 
-            this.tape.write(newSymbol);
-            this.tape.move(move);
+            this.tape.Write(newSymbol);
+            this.tape.Move(move);
 
             this.currentState = newState;
 
             if (newState == this.haltState)
             {
-                return false;
+                return MachineState.Terminated;
             }
 
-            return true;
+            return MachineState.Running;
         }
 
         public string GetLayout()
         {
-            return this.tape.getTapeVisiblePart();
+            return this.tape.GetTapeVisiblePart();
         }
 
     }
