@@ -12,7 +12,7 @@ namespace TuringMachineSimulator
         private const int extendSize = 16;
         private const int tapeCount = 16;
 
-        public int position;
+        public int position;        
 
         public Tape()
         {
@@ -141,6 +141,16 @@ namespace TuringMachineSimulator
             Running, Terminated, Failed
         }
 
+        private int numSteps;
+
+        public int NumSteps
+        {
+            get 
+            { 
+                return numSteps; 
+            }
+        }
+
         public Tape tape;
         public char emptySymbol;
         string initialState;
@@ -180,6 +190,7 @@ namespace TuringMachineSimulator
 
             this.tape.Set(input, this.emptySymbol);
             this.Reset();
+            this.numSteps = 0;
         }
 
         public void Reset()
@@ -374,6 +385,7 @@ namespace TuringMachineSimulator
             {
                 throw new Exception($"Unknown empty symbol {this.emptySymbol}");
             }
+
         }
 
         public MachineState Step()
@@ -401,6 +413,7 @@ namespace TuringMachineSimulator
                 return MachineState.Terminated;
             }
 
+            this.numSteps++;
             return MachineState.Running;
         }
 

@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 
@@ -40,9 +39,9 @@ namespace TuringMachineSimulator
             this.continuousSimulationTimerInterval.Value = this.simulationTimer.Interval;
         }
 
-        private bool IsInputValid(string inout)
+        private bool IsInputValid(string input)
         {
-            foreach (char ch in inout)
+            foreach (char ch in input)
             {
                 if (!this.parent.GlobalSymbols.Contains(ch.ToString()))
                 {
@@ -54,7 +53,6 @@ namespace TuringMachineSimulator
 
         private void Button20_Click(object sender, EventArgs e)
         {
-
             if ((this.textBox1.Text.Length == 0) || (!IsInputValid(this.textBox1.Text)))
             {
                 return;
@@ -74,6 +72,7 @@ namespace TuringMachineSimulator
             if (visualize)
             {
                 this.positionText.Text = $"Head position: {this.parent.simulator.tape.position}";
+                this.numStepsText.Text = $"Total steps: {this.parent.simulator.NumSteps}";
             }
 
             if (this.simulatorState == Simulator.MachineState.Failed)
@@ -102,6 +101,7 @@ namespace TuringMachineSimulator
             this.inputSetButton.Enabled = true;
             this.isContinuouslyRunning = false;
             this.positionText.Text = $"Head position: {0}";
+            this.numStepsText.Text = $"Total steps: {0}";
             this.continiousStepButton.Text = "⏩";
         }
 
@@ -188,6 +188,7 @@ namespace TuringMachineSimulator
                 }
                 this.parent.VisualizeResult();
                 this.positionText.Text = $"Head position: {this.parent.simulator.tape.position}";
+                this.numStepsText.Text = $"Total steps: {this.parent.simulator.NumSteps}";
                 this.FinishSimulation();
             });
 
@@ -206,6 +207,11 @@ namespace TuringMachineSimulator
         private void instantaneousEvaluateButton_MouseHover(object sender, EventArgs e)
         {
             toolTip1.Show("Instantaneous run", this.instantaneousEvaluateButton);
+        }
+
+        private void textBox1_TextChanged(object sender, EventArgs e)
+        {
+
         }
     }
 }

@@ -19,7 +19,7 @@ namespace TuringMachineSimulator
         {
             get
             {
-                return this.compiler.GetGlobalSymbols;
+                return this.compiler.GlobalSymbols;
             }
         }
 

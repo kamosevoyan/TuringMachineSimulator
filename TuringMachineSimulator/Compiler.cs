@@ -9,7 +9,7 @@ namespace TuringMachineSimulator
         private readonly Parser parser;
         private string globalSymbols;
 
-        public string GetGlobalSymbols
+        public string GlobalSymbols
         {
             get { return globalSymbols; }
         }
