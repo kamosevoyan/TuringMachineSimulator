@@ -2,6 +2,9 @@
 
 namespace TuringMachineSimulator
 {
+    /// <summary>
+    /// Enum describing the type of nodes in AST
+    /// </summary>
     enum NodeType
     {
         Main, Block, While, DoWhile, RepeatUntil, If, IfElse, Write,
@@ -11,220 +14,96 @@ namespace TuringMachineSimulator
 
     internal abstract class Node
     {
-        private NodeType type;
-        Node root;
-
-        public Node Root
-        {
-            set
-            {
-                root = value;
-            }
-            get
-            {
-                return root;
-            }
-        }
-
-        public NodeType Type
-        {
-            get { return type; }
-            set { type = value; }
-        }
-
         public Node(NodeType type)
         {
-            this.type = type;
+            Type = type;
         }
+
+        public Node Root { get; set; }
+
+        public NodeType Type { get; private set; }
+
     }
 
     class SymbolNode : Node
     {
-        private string symbols;
-        private bool hasNot;
-
-        public string Symbols
-        {
-            get
-            {
-                return symbols;
-            }
-            set
-            {
-                symbols = value;
-            }
-        }
-        public bool HasNot
-        {
-            get
-            {
-                return hasNot;
-            }
-            set
-            {
-                hasNot = value;
-            }
-        }
-
 
         public SymbolNode(NodeType type) : base(type)
         {
-            this.symbols = "";
+            Symbols = "";
         }
+        public string Symbols { get; set; }
+        public bool HasNegation { get; set; }
+
     }
     class PrimaryNode : Node
     {
         public PrimaryNode(NodeType type) : base(type)
         {
+
         }
     }
 
     class WriteNode : Node
     {
-        private char symbol;
-
-        public char Symbol
-        {
-            get { return symbol; }
-            set { symbol = value; }
-        }
 
         public WriteNode(NodeType type = NodeType.Write) : base(type)
         {
         }
+        public char Symbol { get; set; }
 
     }
 
     class StatementNode : Node
     {
-        private SymbolNode symbols;
-
-        public SymbolNode Symbols
-        {
-            get { return symbols; }
-            set { symbols = value;}
-        }
         public StatementNode(NodeType type) : base(type)
         {
-
         }
+        public SymbolNode Symbols { get; set; }
+
     }
 
     class IfNode : StatementNode
     {
-        private Node statement;
-
-        public Node Statement
-        {
-            set { statement = value; }
-            get { return statement; }
-        }
 
         public IfNode(NodeType type = NodeType.If) : base(type)
         {
 
         }
+        public Node Statement { get; set; }
     }
 
     class IfElseNode : StatementNode
     {
-        private Node ifStatement;
-        private Node elseStatement;
-
-        public Node IfStatement
-        {
-            set
-            {
-                ifStatement = value;
-            }
-            get { return ifStatement; }
-        }
-
-        public Node ElseStatement
-        {
-            set
-            {
-                elseStatement = value;
-            }
-            get { return elseStatement; }
-        }
-
         public IfElseNode(NodeType type = NodeType.IfElse) : base(type)
         {
 
         }
+
+        public Node IfStatement { get; set; }
+
+        public Node ElseStatement { get; set; }
+
     }
 
     class LoopNode : StatementNode
     {
-        private List<int> continueStates;
-        private List<int> breakStates;
-
-        private int continueState;
-        private int breakState;
-
-        private Node statement;
-
-        public List<int> BreakStates
-        {
-            get
-            {
-                return breakStates;
-            }
-
-            set 
-            {
-                breakStates = value;
-            }
-        }
-        public List<int> ContinueStates
-        {
-            get
-            {
-                return continueStates;
-            }
-            set
-            {
-                continueStates = value;
-            }
-        }
-
-        public int ContinueState
-        {
-            get
-            {
-                return continueState;
-            }
-            set
-            {
-                continueState = value;
-            }
-        }
-
-        public int BreakState
-        {
-            get
-            {
-                return breakState;
-            }
-            set
-            {
-                breakState = value;
-            }
-        }
-
-        public Node Statement
-        {
-            set { statement = value; }
-            get { return statement; }
-        }
-
-
         public LoopNode(NodeType type) : base(type)
         {
-            this.continueStates = new List<int>();
-            this.breakStates = new List<int>();
+            ContinueStates = new List<int>();
+            BreakStates = new List<int>();
         }
+
+        public List<int> BreakStates { get; set; }
+        public List<int> ContinueStates { get; set; }
+
+        public int ContinueState { get; set; }
+
+        public int BreakState { get; set; }
+
+        public Node Statement { get; set; }
+
+
     }
 
     class WhileNode : LoopNode
@@ -253,186 +132,64 @@ namespace TuringMachineSimulator
 
     class BlockNode : StatementNode
     {
-        private List<Node> statements;
-
-        public List<Node> Statements
-        {
-            get { return statements; }
-            set { statements = value; }
-        }
-
         public BlockNode(NodeType type = NodeType.Block) : base(type)
         {
-            this.statements = new List<Node>();
+            Statements = new List<Node>();
         }
+        public List<Node> Statements { get; set; }
     }
 
     class MainNode : StatementNode
     {
-        private Node statement;
-
-        public Node Statement
-        {
-            get
-            {
-                return statement;
-            }
-            set
-            {
-                statement = value;
-            }
-        }
-
         public MainNode(NodeType type = NodeType.Main) : base(type)
         {
 
         }
+        public Node Statement { get; set; }
     }
 
     class FlowControllNode : Node
     {
-        private Node ownerLoop;
-
-        public Node OwnerLoop
-        {
-            get
-            {
-                return ownerLoop;
-            }
-            set
-            {
-                ownerLoop = value;
-            }
-        }
-
         public FlowControllNode(NodeType type) : base(type)
         {
 
         }
-
+        public Node OwnerLoop { get; set; }
     }
 
     class SwitchNode : Node
     {
-        private List<Node> cases;
-        private Dictionary<char, Node> branches;
-        private Node defaultNode;
-        private bool hasDefault;
-
-        public List<Node> Cases
-        {
-            get { return cases; }
-            set { cases = value; }
-        }
-
-        public Dictionary<char, Node> Branches
-        {
-            get { return branches; }
-            set { branches = value; }
-        }
-
-        public Node DefaultNode
-        {
-            get { return defaultNode; }
-            set { defaultNode = value; }
-        }
-
-        public bool HasDefault
-        {
-            get { return hasDefault; }
-            set { hasDefault = value; }
-        }
-
         public SwitchNode(NodeType type = NodeType.Switch) : base(type)
         {
-            this.Branches = new Dictionary<char, Node>();
-            this.Cases = new List<Node>();
+            Branches = new Dictionary<char, Node>();
+            Cases = new List<Node>();
         }
+
+        public List<Node> Cases { get; set; }
+        public Dictionary<char, Node> Branches { get; set; }
+        public Node DefaultNode { get; set; }
+        public bool HasDefault { get; set; }
+
     }
 
     class CaseNode : Node
     {
-        private Node statement;
-        private char symbol;
-        private int entryState;
-
-        public Node Statement
-        {
-            get
-            {
-                return statement;
-            }
-            set
-            {
-                statement = value;
-            }
-        }
-
-        public char Symbol
-        {
-            get 
-            { 
-                return symbol; 
-            }
-            set
-            {
-                symbol = value;
-            }
-        }
-
-        public int EntryState
-        {
-            get
-            {
-                return entryState;
-            }
-            set
-            {
-                entryState = value;
-            }
-        }
-
-
         public CaseNode(NodeType type = NodeType.Case) : base(type)
         {
 
         }
-
+        public Node Statement { get; set; }
+        public char Symbol { get; set; }
+        public int EntryState { get; set; }
     }
 
     class DefaultNode : Node
     {
-        private Node statement;
-        private int entryState;
-
-        public Node Statement
-        {
-            get 
-            { 
-                return statement; 
-            }
-            set
-            {
-                statement = value;
-            }
-        }
-
-        public int EntryState
-        {
-            get 
-            { 
-                return entryState; 
-            }
-            set 
-            { 
-                entryState = value; 
-            }
-        }
-
         public DefaultNode(NodeType type = NodeType.Default) : base(type)
         {
 
         }
-
+        public Node Statement { get; set; }
+        public int EntryState { get; set; }
     }
 }

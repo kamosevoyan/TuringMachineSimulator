@@ -1,184 +1,48 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 
 namespace TuringMachineSimulator
 {
-    public class Tape
-    {
-        private StringBuilder leftSide, rightSide;
-        private char emptySymbol;
-        private const int extendSize = 16;
-        private const int tapeCount = 16;
-
-        public int position;        
-
-        public Tape()
-        {
-
-        }
-
-        public void Set(string input, char emptySymbol)
-        {
-            this.emptySymbol = emptySymbol;
-            this.position = 0;
-            string tempRightSide = input;
-            string tempLeftSide = "";
-
-            tempRightSide += new string(emptySymbol, Tape.extendSize);
-            tempLeftSide += new string(emptySymbol, Tape.extendSize);
-
-            this.leftSide = new StringBuilder(tempLeftSide);
-            this.rightSide = new StringBuilder(tempRightSide);
-        }
-
-        public string GetTapeVisiblePart()
-        {
-            string result = "";
-
-            if (this.position > Tape.tapeCount / 2)
-            {
-                int begin = this.position - Tape.tapeCount / 2;
-                int count = Tape.tapeCount;
-                result += this.rightSide.ToString().Substring(begin, count);
-            }
-            else if (-this.position > Tape.tapeCount / 2)
-            {
-                int begin = -this.position - Tape.tapeCount / 2;
-                int count = Tape.tapeCount;
-                result = this.leftSide.ToString().Substring(begin, count);
-
-                var charArray = result.ToCharArray();
-                Array.Reverse(charArray);
-                result = new string(charArray);
-            }
-            else
-            {
-                string leftSidePart = this.leftSide.ToString().Substring(0, Tape.tapeCount / 2 - this.position);
-                string rightSidePart = this.rightSide.ToString().Substring(0, Tape.tapeCount / 2 + this.position);
-                var charArray = leftSidePart.ToCharArray();
-                Array.Reverse(charArray);
-                leftSidePart = new string(charArray);
-
-                result = leftSidePart + rightSidePart;
-            }
-
-            return result;
-        }
-
-        public char Get(int position)
-        {
-            if (position >= 0)
-            {
-                return this.rightSide[position];
-            }
-
-            return this.leftSide[-position - 1];
-        }
-
-        public void Write(string value)
-        {
-            if (this.position >= 0)
-            {
-                this.rightSide[this.position] = value[0];
-            }
-            else
-            {
-                this.leftSide[-position - 1] = value[0];
-            }
-        }
-
-        public void Move(string direction)
-        {
-            int where;
-
-            switch (direction)
-            {
-                case "<":
-                    {
-                        where = -1;
-                        break;
-                    }
-                case "@":
-                    {
-                        where = 0;
-                        break;
-                    }
-                case ">":
-                    {
-                        where = 1;
-                        break;
-                    }
-                default:
-                    {
-                        throw new Exception($"Unknown direction {direction}");
-                    }
-            }
-
-            this.position += where;
-
-            if ((this.position >= 0) && (this.position >= this.rightSide.Length - Tape.tapeCount / 2))
-            {
-                string temp = this.rightSide.ToString();
-                temp += new string(this.emptySymbol, Tape.extendSize);
-
-                this.rightSide = new StringBuilder(temp);
-            }
-            else if (-this.position >= this.leftSide.Length - Tape.tapeCount / 2)
-            {
-                string temp = this.leftSide.ToString();
-                temp += new string(this.emptySymbol, Tape.extendSize);
-
-                this.leftSide = new StringBuilder(temp);
-            }
-        }
-    }
+    /// <summary>
+    /// The class representing Turing Machine Simulator
+    /// </summary>
     public class Simulator
     {
+        /// <summary>
+        /// Enum describing the state of the simulator
+        /// </summary>
         public enum MachineState
         {
             Running, Terminated, Failed
         }
 
-        private int numSteps;
-
-        public int NumSteps
-        {
-            get 
-            { 
-                return numSteps; 
-            }
-        }
+        char _emptySymbol;
+        readonly Dictionary<(string, char), string> _lambda;
+        readonly Dictionary<(string, char), string> _delta;
+        readonly Dictionary<(string, char), string> _nyu;
+        readonly string _directions;
+        string _initialState;
+        string _haltState;
+        List<string> _stateSymbols;
+        string _alphabetSymbols;
+        string _currentState;
+        char _currentSymbol;
 
         public Tape tape;
-        public char emptySymbol;
-        string initialState;
-        string haltState;
-
-        List<string> stateSymbols;
-        string alphabetSymbols;
-        string directions;
-
-        Dictionary<(string, char), string> lambda;
-        Dictionary<(string, char), string> delta;
-        Dictionary<(string, char), string> nyu;
-
-        string currentState;
-        char currentSymbol;
-
+        public int NumSteps { get; set; }
         public bool isFinished;
 
         public Simulator()
         {
-            this.tape = new Tape();
-            this.directions = "<@>";
+            tape = new Tape();
+            _directions = "<@>";
 
-            this.lambda = new Dictionary<(string, char), string> { };
-            this.delta = new Dictionary<(string, char), string> { };
-            this.nyu = new Dictionary<(string, char), string> { };
+            _lambda = new Dictionary<(string, char), string> { };
+            _delta = new Dictionary<(string, char), string> { };
+            _nyu = new Dictionary<(string, char), string> { };
 
-            this.isFinished = false;
+            isFinished = false;
 
         }
         public void SetInput(string input)
@@ -188,22 +52,23 @@ namespace TuringMachineSimulator
                 throw new Exception("Expected non empty string.");
             }
 
-            this.tape.Set(input, this.emptySymbol);
-            this.Reset();
-            this.numSteps = 0;
+            tape.Set(input, _emptySymbol);
+            Reset();
+            NumSteps = 0;
         }
 
         public void Reset()
         {
-            this.currentState = this.initialState;
+            _currentState = _initialState;
         }
 
         public void SetConfiguration(string input)
         {
             string alphabetSymbols = "";
             List<string> stateSymbols = new List<string>();
-            string inOutAlphabet = "", states = "", lambdaDeltaNyu = "";
-
+            string inOutAlphabet;
+            string states;
+            string lambdaDeltaNyu;
 
             string[] lines = input.Split(new char[] { '\n' });
             int lineNumber = 0;
@@ -250,12 +115,12 @@ namespace TuringMachineSimulator
                 stateSymbols.Add(cleanedToken);
             }
 
-            this.alphabetSymbols = alphabetSymbols;
-            this.stateSymbols = stateSymbols;
+            this._alphabetSymbols = alphabetSymbols;
+            this._stateSymbols = stateSymbols;
 
 
-            int rows = this.stateSymbols.Count;
-            int columns = this.alphabetSymbols.Length;
+            int rows = stateSymbols.Count;
+            int columns = alphabetSymbols.Length;
 
             string leftToken, rightToken, dirToken;
 
@@ -273,7 +138,7 @@ namespace TuringMachineSimulator
 
                     if (lineNumber == lines.Count() - 1)
                     {
-                        throw new Exception($"Error: Configuration values for state {this.stateSymbols[row]} and below are not given.");
+                        throw new Exception($"Error: Configuration values for state {stateSymbols[row]} and below are not given.");
                     }
                 }
 
@@ -292,25 +157,25 @@ namespace TuringMachineSimulator
                     rightToken = splitTokens[1];
                     dirToken = splitTokens[2];
 
-                    if (!this.alphabetSymbols.Contains(leftToken))
+                    if (!alphabetSymbols.Contains(leftToken))
                     {
                         throw new Exception($"Unknown symbol {leftToken} in {row} {column}");
                     }
 
-                    if (!this.stateSymbols.Contains(rightToken))
+                    if (!stateSymbols.Contains(rightToken))
                     {
                         throw new Exception($"Unknown state {rightToken} in {row} {column}");
                     }
 
-                    if (!this.directions.Contains(dirToken))
+                    if (!_directions.Contains(dirToken))
                     {
                         throw new Exception($"Unknown direction {dirToken} in {row} {column}");
                     }
 
-                    (string, char) key = (this.stateSymbols[row], this.alphabetSymbols[column]);
-                    this.lambda[key] = rightToken;
-                    this.delta[key] = leftToken;
-                    this.nyu[key] = dirToken;
+                    (string, char) key = (stateSymbols[row], alphabetSymbols[column]);
+                    _lambda[key] = rightToken;
+                    _delta[key] = leftToken;
+                    _nyu[key] = dirToken;
 
                     column++;
                 }
@@ -325,11 +190,12 @@ namespace TuringMachineSimulator
                 }
 
             }
+
             while (true)
             {
-                this.initialState = lines[lineNumber].Trim();
+                _initialState = lines[lineNumber].Trim();
                 ++lineNumber;
-                if (initialState.Length > 0)
+                if (_initialState.Length > 0)
                 {
                     break;
                 }
@@ -340,16 +206,16 @@ namespace TuringMachineSimulator
                 }
             }
 
-            if (!this.stateSymbols.Contains(this.initialState))
+            if (!stateSymbols.Contains(_initialState))
             {
-                throw new Exception($"Unknown initial state {this.initialState}");
+                throw new Exception($"Unknown initial state {_initialState}");
             }
 
             while (true)
             {
-                this.haltState = lines[lineNumber].Trim();
+                _haltState = lines[lineNumber].Trim();
                 ++lineNumber;
-                if (haltState.Length > 0)
+                if (_haltState.Length > 0)
                 {
                     break;
                 }
@@ -360,17 +226,17 @@ namespace TuringMachineSimulator
                 }
             }
 
-            if (!this.stateSymbols.Contains(this.haltState))
+            if (!stateSymbols.Contains(_haltState))
             {
-                throw new Exception($"Unknown halt state {this.haltState}");
+                throw new Exception($"Unknown halt state {_haltState}");
             }
 
             while (true)
             {
-                this.emptySymbol = char.Parse(lines[lineNumber].Trim());
+                _emptySymbol = char.Parse(lines[lineNumber].Trim());
                 ++lineNumber;
 
-                if (emptySymbol.ToString().Length > 0)
+                if (_emptySymbol.ToString().Length > 0)
                 {
                     break;
                 }
@@ -381,45 +247,44 @@ namespace TuringMachineSimulator
                 }
             }
 
-            if (!this.alphabetSymbols.Contains(this.emptySymbol.ToString()))
+            if (!alphabetSymbols.Contains(_emptySymbol.ToString()))
             {
-                throw new Exception($"Unknown empty symbol {this.emptySymbol}");
+                throw new Exception($"Unknown empty symbol {_emptySymbol}");
             }
-
         }
 
         public MachineState Step()
         {
-            this.currentSymbol = this.tape.Get(this.tape.position);
+            _currentSymbol = tape.Get(tape.Position);
 
-            (string, char) key = (currentState, currentSymbol);
+            (string, char) key = (_currentState, _currentSymbol);
 
-            if (!(this.lambda.ContainsKey(key) && this.delta.ContainsKey(key) && this.nyu.ContainsKey(key)))
+            if (!(_lambda.ContainsKey(key) && _delta.ContainsKey(key) && _nyu.ContainsKey(key)))
             {
                 return MachineState.Failed;
             }
 
-            string newState = this.lambda[key];
-            string newSymbol = this.delta[key];
-            string move = this.nyu[key];
+            string newState = _lambda[key];
+            string newSymbol = _delta[key];
+            string move = _nyu[key];
 
-            this.tape.Write(newSymbol);
-            this.tape.Move(move);
+            tape.Write(newSymbol);
+            tape.Move(move);
 
-            this.currentState = newState;
+            _currentState = newState;
 
-            if (newState == this.haltState)
+            if (newState == _haltState)
             {
                 return MachineState.Terminated;
             }
 
-            this.numSteps++;
+            NumSteps++;
             return MachineState.Running;
         }
 
         public string GetLayout()
         {
-            return this.tape.GetTapeVisiblePart();
+            return tape.GetTapeVisiblePart();
         }
 
     }

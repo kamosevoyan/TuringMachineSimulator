@@ -4,73 +4,112 @@ using System.Linq;
 
 namespace TuringMachineSimulator
 {
+    /// <summary>
+    /// Enum describing the types of lexer tokenss
+    /// </summary>
     enum TokenType
     {
         Main, Repeat, Until, Do, While, If, Else, Write, Left, Right, Exit, Error, LeftBrace, RightBrace, LeftParenthesis, RightParenthesis,
         Colon, Semicolon, Symbol, Comma, End, Continue, Break, Not, Function, Name, GlobalSymbols,
         Switch, Case, Default
     }
+    /// <summary>
+    /// Lexer for designed language
+    /// </summary>
     internal class Lexer
-    {
-        private TokenType currentKeyword;
-        private string currentValue;
-        private int position;
-        private readonly Dictionary<string, TokenType> keyMap;
-        private readonly string tokenPattern;
-        private string reader;
-        private List<string> tokens;
-        public List<(int, int)> tokenPositions;
+    {   
+        private int _position;
+        private readonly Dictionary<string, TokenType> _keyMap;
+        private readonly string _tokenPattern;
+        private string _reader;
+        private List<string> _tokens;
 
         public Lexer()
         {
-            this.keyMap = new Dictionary<string, TokenType>();
-            this.keyMap["main"] = TokenType.Main;
-            this.keyMap["while"] = TokenType.While;
-            this.keyMap["repeat"] = TokenType.Repeat;
-            this.keyMap["until"] = TokenType.Until;
-            this.keyMap["do"] = TokenType.Do;
-            this.keyMap["if"] = TokenType.If;
-            this.keyMap["else"] = TokenType.Else;
-            this.keyMap["write"] = TokenType.Write;
-            this.keyMap["left"] = TokenType.Left;
-            this.keyMap["right"] = TokenType.Right;
-            this.keyMap["exit"] = TokenType.Exit;
-            this.keyMap["error"] = TokenType.Error;
-            this.keyMap["not"] = TokenType.Not;
+            _keyMap = new Dictionary<string, TokenType>
+            {
+                ["main"] = TokenType.Main,
+                ["while"] = TokenType.While,
+                ["repeat"] = TokenType.Repeat,
+                ["until"] = TokenType.Until,
+                ["do"] = TokenType.Do,
+                ["if"] = TokenType.If,
+                ["else"] = TokenType.Else,
+                ["write"] = TokenType.Write,
+                ["left"] = TokenType.Left,
+                ["right"] = TokenType.Right,
+                ["exit"] = TokenType.Exit,
+                ["error"] = TokenType.Error,
+                ["not"] = TokenType.Not,
 
-            this.keyMap["continue"] = TokenType.Continue;
-            this.keyMap["break"] = TokenType.Break;
+                ["continue"] = TokenType.Continue,
+                ["break"] = TokenType.Break,
 
-            this.keyMap["{"] = TokenType.LeftBrace;
-            this.keyMap["}"] = TokenType.RightBrace;
-            this.keyMap["("] = TokenType.LeftParenthesis;
-            this.keyMap[")"] = TokenType.RightParenthesis;
-            this.keyMap[";"] = TokenType.Semicolon;
-            this.keyMap[":"] = TokenType.Colon;
-            this.keyMap[","] = TokenType.Comma;
+                ["{"] = TokenType.LeftBrace,
+                ["}"] = TokenType.RightBrace,
+                ["("] = TokenType.LeftParenthesis,
+                [")"] = TokenType.RightParenthesis,
+                [";"] = TokenType.Semicolon,
+                [":"] = TokenType.Colon,
+                [","] = TokenType.Comma,
 
+                ["global_symbols"] = TokenType.GlobalSymbols,
+                ["switch"] = TokenType.Switch,
+                ["case"] = TokenType.Case,
+                ["default"] = TokenType.Default
+            };
 
-            this.keyMap["global_symbols"] = TokenType.GlobalSymbols;
-            this.keyMap["switch"] = TokenType.Switch;
-            this.keyMap["case"] = TokenType.Case;
-            this.keyMap["default"] = TokenType.Default;
+            _tokenPattern = @"\w(\w\d)+";
 
-            this.tokenPattern = @"\w(\w\d)+";
-
-            this.keyMap["function"] = TokenType.Function;
+            _keyMap["function"] = TokenType.Function;
         }
+        public List<(int, int)> TokenPositions { get; private set; }
+        public string CurrentValue { get; private set; }
+        public TokenType CurrentKeyword { get; private set; }
+
         public void SetStream(string stream)
         {
-            this.tokenPositions = new List<(int, int)> { };
-            this.tokens = new List<string> { };
-            this.position = 0;
+            TokenPositions = new List<(int, int)> { };
+            _tokens = new List<string> { };
+            _position = 0;
 
-            this.reader = stream;
-            this.CorrectStream();
+            _reader = stream;
+            CorrectStream();
+        }
+        public bool NextToken()
+        {
+            if (_position >= _tokens.Count)
+            {
+                return false;
+            }
+
+            string temp = _tokens[_position++].Trim();
+
+            if (_keyMap.ContainsKey(temp))
+            {
+                CurrentKeyword = _keyMap[temp];
+                CurrentValue = temp;
+            }
+            else if (temp.Length == 1)
+            {
+                CurrentKeyword = TokenType.Symbol;
+                CurrentValue = temp;
+            }
+            else
+            {
+                if (!IsCorrectToken(temp))
+                {
+                    throw new SyntaxErrorException($"Unacceptable name {temp} in {TokenPositions[_position - 1]}");
+                }
+                CurrentKeyword = TokenType.Name;
+                CurrentValue = temp;
+            }
+
+            return true;
         }
         private bool IsCorrectToken(string token)
         {
-            System.Text.RegularExpressions.Regex regex = new System.Text.RegularExpressions.Regex(this.tokenPattern);
+            System.Text.RegularExpressions.Regex regex = new System.Text.RegularExpressions.Regex(_tokenPattern);
             System.Text.RegularExpressions.Match match = regex.Match(token);
 
             return match.Success;
@@ -78,7 +117,7 @@ namespace TuringMachineSimulator
         private void CorrectStream()
         {
             string temp;
-            temp = reader;
+            temp = _reader;
             string[] lines;
 
             temp = System.Text.RegularExpressions.Regex.Replace(temp, @"\(", " ( ");
@@ -113,57 +152,13 @@ namespace TuringMachineSimulator
                 }
 
                 string[] trimmedTokens = Array.ConvertAll(splittedLine, s => s.Trim());
-                this.tokens = this.tokens.Concat(trimmedTokens).ToList();
+                _tokens = _tokens.Concat(trimmedTokens).ToList();
 
                 foreach (string token in splittedLine)
                 {
-                    this.tokenPositions.Add((lineNumber, _line.IndexOf(token)));
+                    TokenPositions.Add((lineNumber, _line.IndexOf(token)));
                 }
                 ++lineNumber;
-            }
-        }
-        public bool NextToken()
-        {
-            if (this.position >= this.tokens.Count)
-            {
-                return false;
-            }
-            string temp = this.tokens[this.position++].Trim();
-
-            if (this.keyMap.ContainsKey(temp))
-            {
-                this.currentKeyword = this.keyMap[temp];
-                this.currentValue = temp;
-            }
-            else if (temp.Length == 1)
-            {
-                this.currentKeyword = TokenType.Symbol;
-                this.currentValue = temp;
-            }
-            else
-            {
-                if (!IsCorrectToken(temp))
-                {
-                    throw new SyntaxErrorException($"Unacceptable name {temp} in {this.tokenPositions[this.position - 1]}");
-                }
-                this.currentKeyword = TokenType.Name;
-                this.currentValue = temp;
-            }
-
-            return true;
-        }
-        public string CurrentValue
-        {
-            get
-            {
-                return this.currentValue;
-            }
-        }
-        public TokenType CurrentKeyword
-        {
-            get
-            {
-                return this.currentKeyword;
             }
         }
     }

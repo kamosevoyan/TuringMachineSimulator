@@ -1,58 +1,53 @@
 ﻿using System;
 using System.Drawing;
 using System.IO;
-
 using System.Windows.Forms;
 
 namespace TuringMachineSimulator
 {
     public partial class CompilerForm : Form
     {
-        private int globalWidth;
-        private int globalHeight;
-        private string compiledSource;
-        private readonly SimulatorForm simulatorForm;
-        private readonly Compiler compiler;
-
-        public Simulator simulator;
-        public string GlobalSymbols
-        {
-            get
-            {
-                return this.compiler.GlobalSymbols;
-            }
-        }
+        readonly int _globalWidth;
+        readonly int _globalHeight;
+        string _compiledSource;
+        readonly SimulatorForm _simulatorForm;
+        readonly Compiler compiler;
 
         public CompilerForm()
         {
             InitializeComponent();
 
-            this.codeTextBox.Font = new Font("Arial", 12);
+            codeTextBox.Font = new Font("Arial", 12);
 
-            this.globalWidth = Screen.PrimaryScreen.Bounds.Width;
-            this.globalHeight = Screen.PrimaryScreen.Bounds.Height;
+            _globalWidth = Screen.PrimaryScreen.Bounds.Width;
+            _globalHeight = Screen.PrimaryScreen.Bounds.Height;
 
-            this.Width = globalWidth * 4 / 5;
-            this.Height = globalHeight * 3 / 4;
+            Width = _globalWidth * 4 / 5;
+            Height = _globalHeight * 3 / 4;
 
-            int relativeHeight = globalHeight;
-            int relativeWidth = globalWidth;
+            int relativeHeight = _globalHeight;
+            int relativeWidth = _globalWidth;
 
-            this.codeTextBox.Size = new System.Drawing.Size(relativeWidth, relativeHeight);
-            this.compiler = new Compiler();
-            this.simulatorForm = new SimulatorForm(this);
-            this.simulator = new Simulator();
-            this.simulateToolStripMenuItem.Enabled = false;
+            codeTextBox.Size = new System.Drawing.Size(relativeWidth, relativeHeight);
+            compiler = new Compiler();
+            _simulatorForm = new SimulatorForm(this);
+            simulator = new Simulator();
+            simulateToolStripMenuItem.Enabled = false;
+        }
+
+        public Simulator simulator;
+        public string GlobalSymbols
+        {
+            get => compiler.GlobalSymbols;
         }
 
         public void VisualizeResult()
         {
             string layout = simulator.GetLayout();
-            this.setTape(layout);
+            SetTape(layout);
         }
         public Simulator.MachineState StepSimulator(bool visualize)
         {
-
             Simulator.MachineState result = simulator.Step();
             if (visualize)
             {
@@ -61,65 +56,62 @@ namespace TuringMachineSimulator
             return result;
         }
 
-        public void setTape(string values)
+        public void SetTape(string values)
         {
             for (int i = 0; i < values.Length; i++)
             {
-                this.simulatorForm.buttons[i].Text = values[i].ToString();
+                _simulatorForm.Buttons[i].Text = values[i].ToString();
             }
         }
         public void ResetVisualizationTape()
         {
-            int n = this.simulatorForm.buttons.Length;
+            int n = _simulatorForm.Buttons.Length;
             for (int i = 0; i < n; i++)
             {
-                this.simulatorForm.buttons[i].Text = "";
+                _simulatorForm.Buttons[i].Text = "";
             }
 
         }
-        public void setSimulatorInput(string input)
+        public void SetSimulatorInput(string input)
         {
-            this.simulator.SetInput(input);
+            simulator.SetInput(input);
         }
-        private void fileToolStripMenuItem_Click(object sender, EventArgs e)
+        void fileToolStripMenuItem_Click(object sender, EventArgs e)
         {
-
-        }
-
-        private void Form1_Load(object sender, EventArgs e)
-        {
-            int currentHeight = this.Height;
-            int currentWidth = this.Width;
-
-            this.codeTextBox.Size = new System.Drawing.Size(Width * 9 / 10, Height * 8 / 10);
-        }
-
-        private void Form1_ResizeBegin(object sender, EventArgs e)
-        {
-            int currentHeight = this.Height;
-            int currentWidth = this.Width;
-
-            this.codeTextBox.Size = new System.Drawing.Size(Width * 9 / 10, Height * 8 / 10);
-            this.logTextBox.Size = new System.Drawing.Size(Width * 9 / 10, Height * 8 / 10);
-            this.logTextBox.Location = new System.Drawing.Point(8, currentHeight * 17 / 20);
 
         }
 
-        private void newToolStripMenuItem_Click(object sender, EventArgs e)
+        void Form1_Load(object sender, EventArgs e)
+        {          
+            codeTextBox.Size = new System.Drawing.Size(Width * 9 / 10, Height * 8 / 10);
+        }
+
+        void Form1_ResizeBegin(object sender, EventArgs e)
         {
-            DialogResult dialogResult = MessageBox.Show("Do you want to create a new file?", "", MessageBoxButtons.YesNo);
+            int currentHeight = Height;            
+
+            codeTextBox.Size = new System.Drawing.Size(Width * 9 / 10, Height * 8 / 10);
+            logTextBox.Size = new System.Drawing.Size(Width * 9 / 10, Height * 8 / 10);
+            logTextBox.Location = new System.Drawing.Point(8, currentHeight * 17 / 20);
+
+        }
+
+        void newToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            string message = "Do you want to create a new file?";
+            DialogResult dialogResult = MessageBox.Show(message, "", MessageBoxButtons.YesNo);
 
             if (dialogResult == DialogResult.Yes)
             {
-                this.codeTextBox.Text = "";
+                codeTextBox.Text = "";
             }
 
         }
 
-        private void compileToolStripMenuItem_Click(object sender, EventArgs e)
+        void compileToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            this.simulateToolStripMenuItem.Enabled = false;
-            string source = this.codeTextBox.Text;
+            simulateToolStripMenuItem.Enabled = false;
+            string source = codeTextBox.Text;
 
             if (source.Length == 0)
             {
@@ -129,68 +121,70 @@ namespace TuringMachineSimulator
             try
             {
                 compiler.SetStream(source);
-                this.compiledSource = compiler.Compile();
+                _compiledSource = compiler.Compile();
             }
             catch (SyntaxErrorException ex)
             {
-                this.logTextBox.Text = ex.Message;
+                logTextBox.Text = ex.Message;
                 return;
             }
-            this.logTextBox.Text = "Compiled successfully";
+            logTextBox.Text = "Compiled successfully";
 
-            this.simulateToolStripMenuItem.Enabled = true;
+            simulateToolStripMenuItem.Enabled = true;
         }
 
-        private void simulateToolStripMenuItem_Click(object sender, EventArgs e)
+        void simulateToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            if (this.compiledSource == null) //TODO check 
+            if (_compiledSource == null)
             {
                 return;
             }
 
-            this.ResetVisualizationTape();
-            this.simulator.Reset();
+            ResetVisualizationTape();
+            simulator.Reset();
 
-            this.simulator.SetConfiguration(this.compiledSource);
-            this.simulatorForm.Initialize();
+            simulator.SetConfiguration(_compiledSource);
+            _simulatorForm.Initialize();
 
-            this.Hide();
-            this.simulatorForm.Show();
+            Hide();
+            _simulatorForm.Show();
         }
 
-        private void codeTextBox_TextChanged(object sender, EventArgs e)
+        void codeTextBox_TextChanged(object sender, EventArgs e)
         {
 
         }
 
-        private void openToolStripMenuItem_Click(object sender, EventArgs e)
+        void openToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            OpenFileDialog openFileDialog = new OpenFileDialog();
-
-            openFileDialog.Title = "Open File";
-            openFileDialog.Filter = "All files (*.*)|*.*";
+            OpenFileDialog openFileDialog = new OpenFileDialog
+            {
+                Title = "Open File",
+                Filter = "All files (*.*)|*.*"
+            };
 
             if (openFileDialog.ShowDialog() == DialogResult.OK)
             {
                 string selectedFilePath = openFileDialog.FileName;
                 StreamReader sr = new StreamReader(selectedFilePath);
-                this.codeTextBox.Text = sr.ReadToEnd();
+                codeTextBox.Text = sr.ReadToEnd();
                 sr.Close();
             }
         }
 
-        private void saveToolStripMenuItem_Click(object sender, EventArgs e)
+        void saveToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            SaveFileDialog saveFileDialog = new SaveFileDialog();
-
-            saveFileDialog.Title = "Save File";
-            saveFileDialog.Filter = "All files (*.*)|*.*";
+            SaveFileDialog saveFileDialog = new SaveFileDialog
+            {
+                Title = "Save File",
+                Filter = "All files (*.*)|*.*"
+            };
 
             if (saveFileDialog.ShowDialog() == DialogResult.OK)
             {
                 string selectedFilePath = saveFileDialog.FileName;
                 StreamWriter sw = new StreamWriter(selectedFilePath);
-                sw.Write(this.codeTextBox.Text);
+                sw.Write(codeTextBox.Text);
                 sw.Close();
             }
         }

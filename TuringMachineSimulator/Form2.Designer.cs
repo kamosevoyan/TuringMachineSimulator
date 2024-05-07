@@ -263,7 +263,7 @@
             // 
             // inputSetButton
             // 
-            this.inputSetButton.Location = new System.Drawing.Point(339, 414);
+            this.inputSetButton.Location = new System.Drawing.Point(339, 415);
             this.inputSetButton.Margin = new System.Windows.Forms.Padding(0);
             this.inputSetButton.Name = "inputSetButton";
             this.inputSetButton.Size = new System.Drawing.Size(79, 36);
@@ -382,6 +382,7 @@
             this.Name = "SimulatorForm";
             this.Text = "Simulator";
             this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.SimulatorForm_FormClosing);
+            this.Load += new System.EventHandler(this.SimulatorForm_Load);
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.continuousSimulationTimerInterval)).EndInit();
             this.ResumeLayout(false);

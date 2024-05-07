@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 
 namespace TuringMachineSimulator
@@ -55,7 +54,6 @@ namespace TuringMachineSimulator
             }
 
             temp += "q0\nh\n_\n";
-
 
             return temp;
         }
@@ -274,7 +272,7 @@ namespace TuringMachineSimulator
             currentLine = lines.Count - 1;
 
             IfNode ifNode = node as IfNode;
-            bool hasNot = ifNode.Symbols.HasNot;
+            bool hasNot = ifNode.Symbols.HasNegation;
 
             CompileNode(ifNode.Statement, lines, ref stateNumber, globalSymbols);
 
@@ -316,7 +314,7 @@ namespace TuringMachineSimulator
             currentLine = lines.Count - 1;
 
             IfElseNode ifElseNode = node as IfElseNode;
-            bool hasNot = ifElseNode.Symbols.HasNot;
+            bool hasNot = ifElseNode.Symbols.HasNegation;
 
             CompileNode(ifElseNode.IfStatement, lines, ref stateNumber, globalSymbols);
             lines.Add("");
@@ -381,7 +379,7 @@ namespace TuringMachineSimulator
 
             WhileNode whileNode = node as WhileNode;
 
-            bool hasNot = whileNode.Symbols.HasNot;
+            bool hasNot = whileNode.Symbols.HasNegation;
 
             CompileNode(whileNode.Statement, lines, ref stateNumber, globalSymbols);
 
@@ -439,7 +437,7 @@ namespace TuringMachineSimulator
             oldStateNumber = stateNumber;
             DoWhileNode doWhileNode = node as DoWhileNode;
 
-            bool hasNot = doWhileNode.Symbols.HasNot;
+            bool hasNot = doWhileNode.Symbols.HasNegation;
 
             CompileNode(doWhileNode.Statement, lines, ref stateNumber, globalSymbols);
 
@@ -483,7 +481,7 @@ namespace TuringMachineSimulator
             oldStateNumber = stateNumber;
             RepeatUntilNode repeatUntilNode = node as RepeatUntilNode;
 
-            bool hasNot = repeatUntilNode.Symbols.HasNot;
+            bool hasNot = repeatUntilNode.Symbols.HasNegation;
 
             CompileNode(repeatUntilNode.Statement, lines, ref stateNumber, globalSymbols);
 
@@ -522,7 +520,7 @@ namespace TuringMachineSimulator
 
         private void CompileSwitchNode(Node node, List<string> lines, ref int stateNumber, string globalSymbols)
         {
-            int currentLine = 0;
+            int currentLine;
             string temp = "";
             ++stateNumber;
 
