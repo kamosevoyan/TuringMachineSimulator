@@ -2,51 +2,51 @@
 
 ### The syntax of the language:
 
-\<program\> := \<symbol list\> \<main-statement\>
+\<`program`\> := \<`symbol list`\> \<`main-statement`\>
 
-\<main-statement\> := \<statement\>
+\<`main-statement`\> := \<`statement`\>
 
-\<statement\> :=  \<block-statement\> | \<if-statement\> | \<if_else-statement\> | \<while-statement\> | \<do_while-statement\>| \<repeat_until-statement\> | \<write-statement\> | \<left-statement\> | \<right-statement\> | \<exit-statement\> | \<error-statement\> | \<continue-statement\> | \<break-statement\> | \<switch-statement\>
+\<`statement`\> :=  \<`block-statement`\> | \<`if-statement`\> | \<`if_else-statement`\> | \<`while-statement`\> | \<`do_while-statement`\>| \<`repeat_until-statement`\> | \<`write-statement`\> | \<`left-statement`\> | \<`right-statement`\> | \<`exit-statement`\> | \<`error-statement`\> | \<`continue-statement`\> | \<`break-statement`\> | \<`switch-statement`\>
               
-\<block-statement\> := '{' \<statement\>+ '}'
+\<`block-statement`\> := '{' \<`statement`\>+ '}'
   
-\<if-statement\> := 'if' \<symbol list\> \<statement\>
+\<`if-statement`\> := 'if' \<`symbol list`\> \<`statement`\>
 
-\<if_else-statement\> := 'if' \<symbol list\> \<statement\> 'else' \<statement\>
+\<`if_else-statement`\> := 'if' \<`symbol list`\> \<`statement`\> 'else' \<`statement`\>
               
-\<while-statement\> := 'while' \<symbol list\> \<statement\>
+\<`while-statement`\> := 'while' \<`symbol list`\> \<`statement`\>
 
-\<do_whlie-statement\> := 'do' \<statement\> 'while' \<symbol list\> ';'
+\<`do_whlie-statement`\> := 'do' \<`statement`\> 'while' \<`symbol list`\> ';'
 
-\<repeat_until-statement\> := 'repeat' \<statement\> 'until' \<symbol list\> ';'
+\<`repeat_until-statement`\> := 'repeat' \<`statement`\> 'until' \<`symbol list`\> ';'
               
-\<write-statement\> := 'write' \<symbol\> ';'
+\<`write-statement`\> := 'write' \<`symbol`\> ';'
               
-\<left-statement\> := 'left' ';'
+\<`left-statement`\> := 'left' ';'
               
-\<right-statement\> := 'right' ';'
+\<`right-statement`\> := 'right' ';'
               
-\<exit-statement\> := 'exit' ';'
+\<`exit-statement`\> := 'exit' ';'
               
-\<error-statement\> := 'error' ';'
+\<`error-statement`\> := 'error' ';'
               
-\<continue-statement\> := 'cointinue' ';'
+\<`continue-statement`\> := 'cointinue' ';'
 
-\<break-statement\> := 'break' ';'
+\<`break-statement`\> := 'break' ';'
 
-\<switch-statement\> ::= 'switch' '()' \<case-statements\>
+\<`switch-statement`\> := 'switch' '()' \<`case-statements`\>
 
-\<case-statements\> ::= \<case-statement\>+
+\<`case-statements`\> := \<`case-statement`\>+
 
-\<case-statement\> := 'case' '(' \<symbol\> ')' \<statement\>
+\<`case-statement`\> := 'case' '(' \<`symbol`\> ')' \<`statement`\>
               
-\<symbol list\> := \<not\> '(' \<symbol\> ( \<comma\> \<symbol\> )* ')' | '(' \<symbol\> ( \<comma\> \<symbol\> )* ')'
+\<`symbol list`\> := \<`not`\> '(' \<`symbol`\> ( \<`comma`\> \<`symbol`\> )* ')' | '(' \<`symbol`\> ( \<`comma`\> \<`symbol`\> )* ')'
 
-\<symbol\> =  ASCII printable character
+\<`symbol`\> =  ASCII printable character
   
-\<not\> := 'not'  
+\<`not`\> := 'not'  
 
-\<comma\> := ','
+\<`comma`\> := ','
 
 ## Description of statements.
 
